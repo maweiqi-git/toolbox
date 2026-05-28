@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文本差异对比 - 工具箱</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f0f2f5; min-height: 100vh;
+  display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px;
+}
+.container {
+  width: 100%; max-width: 1000px; background: #fff;
+  border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px;
+}
+.back { text-decoration: none; color: #4f6ef7; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 24px; }
+.back:hover { color: #3b5de7; }
+h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
+.subtitle { font-size: 13px; color: #999; margin-bottom: 20px; }
+
+/* 双栏输入 */
+.input-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.input-col { flex: 1; }
+.label { font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px; }
+textarea {
+  width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  padding: 14px; font-size: 13px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+  line-height: 1.6; resize: vertical; transition: border-color .2s; outline: none;
+  height: 180px;
+}
+textarea:focus { border-color: #4f6ef7; }
+
+.actions { display: flex; gap: 12px; margin: 16px 0; }
+.btn {
+  padding: 10px 20px; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s;
+}
+.btn-primary { background: #4f6ef7; color: #fff; }
+.btn-primary:hover { background: #3b5de7; }
+.btn-secondary { background: #f0f2f5; color: #333; }
+.btn-secondary:hover { background: #e4e6eb; }
+
+/* Diff 结果 */
+.stats { display: flex; gap: 20px; margin-bottom: 16px; font-size: 13px; }
+.stat-item { display: flex; align-items: center; gap: 6px; }
+.stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+.stat-dot.add { background: #22c55e; }
+.stat-dot.del { background: #ef4444; }
+.stat-dot.same { background: #d1d5db; }
+
+.diff-output {
+  border: 1px solid #e0e0e0; border-radius: 8px; max-height: 400px; overflow-y: auto;
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace; font-size: 13px;
+}
+.diff-line {
+  display: flex; padding: 2px 14px; line-height: 1.7; min-height: 24px; align-items: center;
+}
+.diff-line.add { background: #dcfce7; }
+.diff-line.del { background: #fef2f2; }
+.diff-line.same { background: #fff; }
+.diff-num {
+  width: 40px; flex-shrink: 0; color: #bbb; font-size: 12px; text-align: right;
+  margin-right: 12px; user-select: none;
+}
+.diff-text { white-space: pre-wrap; word-break: break-all; flex: 1; }
+
+.empty-hint { text-align: center; padding: 40px; color: #ccc; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <a class="back" href="../index.html">&larr; 返回工具箱</a>
+  <h1>文本差异对比</h1>
+  <p class="subtitle">逐行对比两份文本，标出新增、删除和相同行</p>
+
+  <div class="input-row">
+    <div class="input-col">
+      <div class="label">原始文本</div>
+      <textarea id="left-input" placeholder="粘贴旧版本文本..." oninput="autoDiff()"></textarea>
+    </div>
+    <div class="input-col">
+      <div class="label">新文本</div>
+      <textarea id="right-input" placeholder="粘贴新版本文本..." oninput="autoDiff()"></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="doDiff()">对比</button>
+    <button class="btn btn-secondary" onclick="swapText()">交换文本</button>
+    <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+    <button class="btn btn-secondary" onclick="loadDemo()">加载示例</button>
+  </div>
+
+  <div class="stats">
+    <span class="stat-item"><span class="stat-dot same"></span> 相同 <span id="same-count">0</span></span>
+    <span class="stat-item"><span class="stat-dot add"></span> 新增 <span id="add-count">0</span></span>
+    <span class="stat-item"><span class="stat-dot del"></span> 删除 <span id="del-count">0</span></span>
+  </div>
+
+  <div class="diff-output" id="diff-output">
+    <div class="empty-hint">输入两份文本后点击「对比」</div>
+  </div>
+</div>
+
+<script>
+var leftEl = document.getElementById('left-input');
+var rightEl = document.getElementById('right-input');
+var outputEl = document.getElementById('diff-output');
+
+function autoDiff() {
+  doDiff();
+}
+
+// 简易 LCS diff 算法
+function diffLines(a, b) {
+  var m = a.length, n = b.length;
+  var dp = [];
+  for (var i = 0; i <= m; i++) { dp[i] = []; for (var j = 0; j <= n; j++) dp[i][j] = 0; }
+  for (var i = 1; i <= m; i++) {
+    for (var j = 1; j <= n; j++) {
+      if (a[i-1] === b[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+      else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  var result = [];
+  var i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && a[i-1] === b[j-1]) {
+      result.unshift({ type: 'same', text: a[i-1], oldNum: i, newNum: j });
+      i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+      result.unshift({ type: 'add', text: b[j-1], newNum: j });
+      j--;
+    } else {
+      result.unshift({ type: 'del', text: a[i-1], oldNum: i });
+      i--;
+    }
+  }
+  return result;
+}
+
+function doDiff() {
+  var left = leftEl.value;
+  var right = rightEl.value;
+
+  if (!left && !right) {
+    outputEl.innerHTML = '<div class="empty-hint">输入两份文本后点击「对比」</div>';
+    document.getElementById('same-count').textContent = '0';
+    document.getElementById('add-count').textContent = '0';
+    document.getElementById('del-count').textContent = '0';
+    return;
+  }
+
+  var oldLines = left ? left.split('\n') : [];
+  var newLines = right ? right.split('\n') : [];
+
+  var diff = diffLines(oldLines, newLines);
+
+  var sameC = 0, addC = 0, delC = 0;
+  var html = '';
+  diff.forEach(function(line) {
+    if (line.type === 'same') sameC++;
+    else if (line.type === 'add') addC++;
+    else delC++;
+
+    var oldNum = line.oldNum || '';
+    var newNum = line.newNum || '';
+    html += '<div class="diff-line ' + line.type + '">' +
+      '<span class="diff-num">' + oldNum + '</span>' +
+      '<span class="diff-num">' + newNum + '</span>' +
+      '<span class="diff-text">' + esc(line.text || '') + '</span></div>';
+  });
+
+  outputEl.innerHTML = html;
+  document.getElementById('same-count').textContent = sameC;
+  document.getElementById('add-count').textContent = addC;
+  document.getElementById('del-count').textContent = delC;
+}
+
+function esc(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function swapText() {
+  var tmp = leftEl.value;
+  leftEl.value = rightEl.value;
+  rightEl.value = tmp;
+  doDiff();
+}
+
+function clearAll() {
+  leftEl.value = ''; rightEl.value = '';
+  outputEl.innerHTML = '<div class="empty-hint">输入两份文本后点击「对比」</div>';
+  document.getElementById('same-count').textContent = '0';
+  document.getElementById('add-count').textContent = '0';
+  document.getElementById('del-count').textContent = '0';
+}
+
+function loadDemo() {
+  leftEl.value = 'function hello() {\n  console.log("Hello");\n  console.log("World");\n  return 1;\n}\n\nfunction foo() {\n  return "old";\n}';
+  rightEl.value = 'function hello() {\n  console.log("Hello");\n  console.log("World");\n  console.log("!");\n  return 1;\n}\n\nfunction bar() {\n  return "new";\n}';
+  doDiff();
+}
+</script>
+</body>
+</html>
