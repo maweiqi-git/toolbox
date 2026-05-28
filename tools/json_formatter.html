@@ -12,30 +12,39 @@ body {
   display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px;
 }
 .container {
-  width: 100%; max-width: 800px; background: #fff;
+  width: 100%; max-width: 1100px; background: #fff;
   border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px;
 }
 .back { text-decoration: none; color: #4f6ef7; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 24px; }
 .back:hover { color: #3b5de7; }
 h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
-.subtitle { font-size: 13px; color: #999; margin-bottom: 24px; }
+.subtitle { font-size: 13px; color: #999; margin-bottom: 20px; }
 
-.row { margin-bottom: 16px; }
+/* 左右双栏 */
+.main-row { display: flex; gap: 20px; }
+.col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
 .label { font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px; display: flex; justify-content: space-between; }
 .label .hint { font-size: 12px; color: #999; font-weight: 400; }
+.stat { font-size: 12px; color: #4f6ef7; }
+
 textarea {
   width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
   padding: 14px; font-size: 13px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-  line-height: 1.6; resize: vertical; transition: border-color .2s; outline: none;
+  line-height: 1.6; resize: none; transition: border-color .2s; outline: none;
+  height: 520px;
 }
 textarea:focus { border-color: #4f6ef7; }
-#input-area { height: 140px; }
-#output-area { height: 420px; background: #f8f9fa; }
+#output-area { background: #f8f9fa; }
 
-.actions { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+.option-row { display: flex; gap: 14px; align-items: center; margin: 12px 0; flex-wrap: wrap; }
+.option-row label { font-size: 13px; color: #666; display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
+.option-row input[type="number"] { width: 44px; border: 1.5px solid #e0e0e0; border-radius: 4px; padding: 4px 6px; font-size: 13px; text-align: center; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .btn {
-  padding: 10px 20px; border: none; border-radius: 8px;
-  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s;
+  padding: 8px 18px; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s;
 }
 .btn-primary { background: #4f6ef7; color: #fff; }
 .btn-primary:hover { background: #3b5de7; }
@@ -49,16 +58,16 @@ textarea:focus { border-color: #4f6ef7; }
 }
 .error-msg.show { display: block; }
 
-.option-row { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
-.option-row label { font-size: 13px; color: #666; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-.option-row input[type="number"] { width: 50px; border: 1.5px solid #e0e0e0; border-radius: 4px; padding: 4px 8px; font-size: 13px; text-align: center; }
-
 .tips {
   margin-top: 20px; padding: 12px 16px; background: #fffbe6;
   border: 1px solid #ffe58f; border-radius: 8px; font-size: 13px; color: #8c6e00; display: none;
 }
 .tips.show { display: block; }
-.stat { font-size: 12px; color: #4f6ef7; }
+
+@media (max-width: 700px) {
+  .main-row { flex-direction: column; }
+  textarea { height: 260px; }
+}
 </style>
 </head>
 <body>
@@ -68,29 +77,35 @@ textarea:focus { border-color: #4f6ef7; }
   <h1>JSON 格式化</h1>
   <p class="subtitle">美化、压缩、校验 JSON 数据</p>
 
-  <div class="row">
-    <div class="label"><span>输入</span><span class="hint">粘贴原始 JSON 文本</span></div>
-    <textarea id="input-area" placeholder='粘贴 JSON 数据，例如：&#10;{"name":"张三","age":25,"items":["a","b"]}' oninput="autoFormat()"></textarea>
-  </div>
+  <div class="main-row">
+    <!-- 左栏：输入 -->
+    <div class="col">
+      <div class="label"><span>输入</span><span class="hint">粘贴原始 JSON</span></div>
+      <textarea id="input-area" placeholder='粘贴 JSON，例如：{"name":"张三","age":25}' oninput="autoFormat()"></textarea>
 
-  <div class="option-row">
-    <label><input type="radio" name="mode" value="beautify" checked onchange="formatNow()"> 美化</label>
-    <label><input type="radio" name="mode" value="compress" onchange="formatNow()"> 压缩</label>
-    <label style="margin-left:12px">缩进 <input type="number" id="indent" value="2" min="1" max="8" onchange="formatNow()" style="width:44px"> 空格</label>
-  </div>
+      <div class="option-row">
+        <label><input type="radio" name="mode" value="beautify" checked onchange="formatNow()"> 美化</label>
+        <label><input type="radio" name="mode" value="compress" onchange="formatNow()"> 压缩</label>
+        <label>缩进 <input type="number" id="indent" value="2" min="1" max="8" onchange="formatNow()"> 空格</label>
+      </div>
 
-  <div class="actions">
-    <button class="btn btn-primary" onclick="formatNow()">格式化</button>
-    <button class="btn btn-secondary" onclick="copyOutput()">复制结果</button>
-    <button class="btn btn-secondary" onclick="clearAll()">清空</button>
-    <button class="btn btn-secondary" onclick="loadDemo()">加载示例</button>
-  </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="formatNow()">格式化</button>
+        <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+        <button class="btn btn-secondary" onclick="loadDemo()">示例</button>
+      </div>
 
-  <div class="error-msg" id="error-msg"></div>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
 
-  <div class="row" style="margin-top:16px">
-    <div class="label"><span>结果</span><span class="stat" id="stat"></span></div>
-    <textarea id="output-area" readonly placeholder="格式化结果将显示在这里"></textarea>
+    <!-- 右栏：结果 -->
+    <div class="col">
+      <div class="label"><span>结果</span><span class="stat" id="stat"></span></div>
+      <textarea id="output-area" readonly placeholder="格式化结果将显示在这里"></textarea>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="copyOutput()">复制结果</button>
+      </div>
+    </div>
   </div>
 
   <div class="tips" id="tips">已复制到剪贴板</div>
@@ -103,9 +118,7 @@ var errorEl = document.getElementById('error-msg');
 var statEl = document.getElementById('stat');
 var tipsEl = document.getElementById('tips');
 
-function autoFormat() {
-  formatNow();
-}
+function autoFormat() { formatNow(); }
 
 function formatNow() {
   var raw = inputEl.value.trim();
