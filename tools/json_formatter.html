@@ -33,7 +33,7 @@ textarea {
   width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
   padding: 14px; font-size: 13px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
   line-height: 1.6; resize: none; transition: border-color .2s; outline: none;
-  height: 520px;
+  height: calc(100vh - 260px); min-height: 400px;
 }
 textarea:focus { border-color: #4f6ef7; }
 #output-area { background: #f8f9fa; }
@@ -76,19 +76,12 @@ textarea:focus { border-color: #4f6ef7; }
 <div class="container">
   <a class="back" href="../index.html">&larr; 返回工具箱</a>
   <h1>JSON 格式化</h1>
-  <p class="subtitle">美化、压缩、校验 JSON 数据</p>
 
   <div class="main-row">
     <!-- 左栏：输入 -->
     <div class="col-left">
       <div class="label"><span>输入</span><span class="hint">粘贴原始 JSON</span></div>
       <textarea id="input-area" placeholder='粘贴 JSON，例如：{"name":"张三","age":25}' oninput="autoFormat()"></textarea>
-
-      <div class="option-row">
-        <label><input type="radio" name="mode" value="beautify" checked onchange="formatNow()"> 美化</label>
-        <label><input type="radio" name="mode" value="compress" onchange="formatNow()"> 压缩</label>
-        <label>缩进 <input type="number" id="indent" value="2" min="1" max="8" onchange="formatNow()"> 空格</label>
-      </div>
 
       <div class="actions">
         <button class="btn btn-primary" onclick="formatNow()">格式化</button>
@@ -105,6 +98,9 @@ textarea:focus { border-color: #4f6ef7; }
       <textarea id="output-area" readonly placeholder="格式化结果将显示在这里"></textarea>
       <div class="actions" style="margin-top:12px">
         <button class="btn btn-primary" onclick="copyOutput()">复制结果</button>
+        <label style="font-size:13px;color:#666;display:flex;align-items:center;gap:4px;cursor:pointer;margin-left:4px"><input type="radio" name="mode" value="beautify" checked onchange="formatNow()"> 美化</label>
+        <label style="font-size:13px;color:#666;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="radio" name="mode" value="compress" onchange="formatNow()"> 压缩</label>
+        <label style="font-size:13px;color:#666;display:flex;align-items:center;gap:4px;cursor:pointer;margin-left:4px">缩进 <input type="number" id="indent" value="2" min="1" max="8" onchange="formatNow()" style="width:44px;border:1.5px solid #e0e0e0;border-radius:4px;padding:4px 6px;font-size:13px;text-align:center"> 空格</label>
       </div>
     </div>
   </div>
