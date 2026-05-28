@@ -12,61 +12,67 @@ body {
   display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px;
 }
 .container {
-  width: 100%; max-width: 1000px; background: #fff;
+  width: 100%; max-width: 1500px; background: #fff;
   border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px;
 }
-.back { text-decoration: none; color: #4f6ef7; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 24px; }
+.back { text-decoration: none; color: #4f6ef7; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 14px; }
 .back:hover { color: #3b5de7; }
-h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
-.subtitle { font-size: 13px; color: #999; margin-bottom: 20px; }
+h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 12px; }
 
-/* 双栏输入 */
-.input-row { display: flex; gap: 16px; margin-bottom: 16px; }
-.input-col { flex: 1; }
-.label { font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px; }
-textarea {
-  width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
-  padding: 14px; font-size: 13px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-  line-height: 1.6; resize: vertical; transition: border-color .2s; outline: none;
-  height: 180px;
-}
-textarea:focus { border-color: #4f6ef7; }
-
-.actions { display: flex; gap: 12px; margin: 16px 0; }
+/* 工具栏 */
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
 .btn {
-  padding: 10px 20px; border: none; border-radius: 8px;
-  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s;
+  padding: 8px 18px; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s;
 }
 .btn-primary { background: #4f6ef7; color: #fff; }
 .btn-primary:hover { background: #3b5de7; }
 .btn-secondary { background: #f0f2f5; color: #333; }
 .btn-secondary:hover { background: #e4e6eb; }
+.stats { font-size: 13px; color: #888; margin-left: 8px; display: flex; gap: 14px; }
+.stats span { display: flex; align-items: center; gap: 4px; }
+.stats .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.stats .dot.add { background: #22c55e; }
+.stats .dot.del { background: #ef4444; }
 
-/* Diff 结果 */
-.stats { display: flex; gap: 20px; margin-bottom: 16px; font-size: 13px; }
-.stat-item { display: flex; align-items: center; gap: 6px; }
-.stat-dot { width: 8px; height: 8px; border-radius: 50%; }
-.stat-dot.add { background: #22c55e; }
-.stat-dot.del { background: #ef4444; }
-.stat-dot.same { background: #d1d5db; }
+/* 双栏 */
+.diff-row { display: flex; gap: 20px; }
+.diff-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.diff-col .label { font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px; }
 
-.diff-output {
-  border: 1px solid #e0e0e0; border-radius: 8px; max-height: 400px; overflow-y: auto;
+/* 行内对比区 */
+.diff-pane {
+  flex: 1; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  overflow-y: auto; overflow-x: auto;
   font-family: "SF Mono", Monaco, "Cascadia Code", monospace; font-size: 13px;
+  line-height: 1.65;
+  height: calc(100vh - 240px); min-height: 400px;
 }
 .diff-line {
-  display: flex; padding: 2px 14px; line-height: 1.7; min-height: 24px; align-items: center;
+  display: flex; padding: 1px 12px; white-space: pre;
 }
+.diff-line .num {
+  width: 44px; flex-shrink: 0; text-align: right; color: #bbb; font-size: 12px;
+  margin-right: 12px; user-select: none;
+}
+.diff-line .txt { flex: 1; word-break: break-all; }
+
+.diff-line.empty { background: #f9fafb; }
 .diff-line.add { background: #dcfce7; }
 .diff-line.del { background: #fef2f2; }
 .diff-line.same { background: #fff; }
-.diff-num {
-  width: 40px; flex-shrink: 0; color: #bbb; font-size: 12px; text-align: right;
-  margin-right: 12px; user-select: none;
-}
-.diff-text { white-space: pre-wrap; word-break: break-all; flex: 1; }
+.diff-line.add .num { color: #22c55e; }
+.diff-line.del .num { color: #ef4444; }
 
-.empty-hint { text-align: center; padding: 40px; color: #ccc; font-size: 14px; }
+.col-sep { width: 20px; flex-shrink: 0; }
+
+.empty-hint { text-align: center; padding: 60px 20px; color: #ccc; font-size: 14px; }
+
+@media (max-width: 800px) {
+  .diff-row { flex-direction: column; }
+  .diff-pane { height: 300px; }
+  .col-sep { display: none; }
+}
 </style>
 </head>
 <body>
@@ -74,47 +80,45 @@ textarea:focus { border-color: #4f6ef7; }
 <div class="container">
   <a class="back" href="../index.html">&larr; 返回工具箱</a>
   <h1>文本差异对比</h1>
-  <p class="subtitle">逐行对比两份文本，标出新增、删除和相同行</p>
 
-  <div class="input-row">
-    <div class="input-col">
-      <div class="label">原始文本</div>
-      <textarea id="left-input" placeholder="粘贴旧版本文本..." oninput="autoDiff()"></textarea>
-    </div>
-    <div class="input-col">
-      <div class="label">新文本</div>
-      <textarea id="right-input" placeholder="粘贴新版本文本..." oninput="autoDiff()"></textarea>
-    </div>
-  </div>
-
-  <div class="actions">
+  <div class="toolbar">
     <button class="btn btn-primary" onclick="doDiff()">对比</button>
     <button class="btn btn-secondary" onclick="swapText()">交换文本</button>
     <button class="btn btn-secondary" onclick="clearAll()">清空</button>
-    <button class="btn btn-secondary" onclick="loadDemo()">加载示例</button>
+    <button class="btn btn-secondary" onclick="loadDemo()">示例</button>
+    <span class="stats">
+      <span><span class="dot same" style="background:#d1d5db"></span> 相同 <b id="same-count">0</b></span>
+      <span><span class="dot add"></span> 新增 <b id="add-count">0</b></span>
+      <span><span class="dot del"></span> 删除 <b id="del-count">0</b></span>
+    </span>
   </div>
 
-  <div class="stats">
-    <span class="stat-item"><span class="stat-dot same"></span> 相同 <span id="same-count">0</span></span>
-    <span class="stat-item"><span class="stat-dot add"></span> 新增 <span id="add-count">0</span></span>
-    <span class="stat-item"><span class="stat-dot del"></span> 删除 <span id="del-count">0</span></span>
-  </div>
-
-  <div class="diff-output" id="diff-output">
-    <div class="empty-hint">输入两份文本后点击「对比」</div>
+  <div class="diff-row">
+    <div class="diff-col">
+      <div class="label">原始文本（可编辑）</div>
+      <div class="diff-pane" id="left-pane" contenteditable="true"></div>
+    </div>
+    <div class="col-sep"></div>
+    <div class="diff-col">
+      <div class="label">新文本（可编辑）</div>
+      <div class="diff-pane" id="right-pane" contenteditable="true"></div>
+    </div>
   </div>
 </div>
 
 <script>
-var leftEl = document.getElementById('left-input');
-var rightEl = document.getElementById('right-input');
-var outputEl = document.getElementById('diff-output');
+var leftPane = document.getElementById('left-pane');
+var rightPane = document.getElementById('right-pane');
 
-function autoDiff() {
-  doDiff();
+leftPane.addEventListener('input', doDiff);
+rightPane.addEventListener('input', doDiff);
+
+function getLines(el) {
+  var text = el.innerText || '';
+  return text === '' ? [] : text.split('\n');
 }
 
-// 简易 LCS diff 算法
+// LCS diff
 function diffLines(a, b) {
   var m = a.length, n = b.length;
   var dp = [];
@@ -129,55 +133,78 @@ function diffLines(a, b) {
   var i = m, j = n;
   while (i > 0 || j > 0) {
     if (i > 0 && j > 0 && a[i-1] === b[j-1]) {
-      result.unshift({ type: 'same', text: a[i-1], oldNum: i, newNum: j });
+      result.unshift({ type: 'same', text: a[i-1] });
       i--; j--;
     } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
-      result.unshift({ type: 'add', text: b[j-1], newNum: j });
+      result.unshift({ type: 'add', text: b[j-1] });
       j--;
     } else {
-      result.unshift({ type: 'del', text: a[i-1], oldNum: i });
+      result.unshift({ type: 'del', text: a[i-1] });
       i--;
     }
   }
   return result;
 }
 
-function doDiff() {
-  var left = leftEl.value;
-  var right = rightEl.value;
+function isEqual(strA, strB) {
+  return (strA || '') === (strB || '');
+}
 
-  if (!left && !right) {
-    outputEl.innerHTML = '<div class="empty-hint">输入两份文本后点击「对比」</div>';
+function doDiff() {
+  // 保存光标位置
+  var sel = window.getSelection();
+  var focusNode = sel.focusNode;
+  var focusEl = focusNode ? (focusNode.nodeType === 3 ? focusNode.parentElement : focusNode) : null;
+  var focusPane = focusEl ? focusEl.closest('.diff-pane') : null;
+
+  var leftLines = getLines(leftPane);
+  var rightLines = getLines(rightPane);
+
+  if (leftLines.length === 0 && rightLines.length === 0) {
+    leftPane.innerHTML = '<div class="empty-hint">在此粘贴旧版本...</div>';
+    rightPane.innerHTML = '<div class="empty-hint">在此粘贴新版本...</div>';
     document.getElementById('same-count').textContent = '0';
     document.getElementById('add-count').textContent = '0';
     document.getElementById('del-count').textContent = '0';
     return;
   }
 
-  var oldLines = left ? left.split('\n') : [];
-  var newLines = right ? right.split('\n') : [];
-
-  var diff = diffLines(oldLines, newLines);
+  var diff = diffLines(leftLines, rightLines);
 
   var sameC = 0, addC = 0, delC = 0;
-  var html = '';
-  diff.forEach(function(line) {
-    if (line.type === 'same') sameC++;
-    else if (line.type === 'add') addC++;
-    else delC++;
+  var leftHTML = '', rightHTML = '';
+  var leftNum = 0, rightNum = 0;
 
-    var oldNum = line.oldNum || '';
-    var newNum = line.newNum || '';
-    html += '<div class="diff-line ' + line.type + '">' +
-      '<span class="diff-num">' + oldNum + '</span>' +
-      '<span class="diff-num">' + newNum + '</span>' +
-      '<span class="diff-text">' + esc(line.text || '') + '</span></div>';
-  });
+  for (var i = 0; i < diff.length; i++) {
+    var d = diff[i];
+    if (d.type === 'same') {
+      leftNum++; rightNum++; sameC++;
+      leftHTML += '<div class="diff-line same"><span class="num">' + leftNum + '</span><span class="txt">' + esc(d.text) + '</span></div>';
+      rightHTML += '<div class="diff-line same"><span class="num">' + rightNum + '</span><span class="txt">' + esc(d.text) + '</span></div>';
+    } else if (d.type === 'add') {
+      rightNum++; addC++;
+      leftHTML += '<div class="diff-line empty"><span class="num"></span><span class="txt"></span></div>';
+      rightHTML += '<div class="diff-line add"><span class="num">' + rightNum + '</span><span class="txt">' + esc(d.text) + '</span></div>';
+    } else {
+      leftNum++; delC++;
+      leftHTML += '<div class="diff-line del"><span class="num">' + leftNum + '</span><span class="txt">' + esc(d.text) + '</span></div>';
+      rightHTML += '<div class="diff-line empty"><span class="num"></span><span class="txt"></span></div>';
+    }
+  }
 
-  outputEl.innerHTML = html;
+  if (!leftHTML) leftHTML = '<div class="empty-hint"></div>';
+  if (!rightHTML) rightHTML = '<div class="empty-hint"></div>';
+
+  leftPane.innerHTML = leftHTML;
+  rightPane.innerHTML = rightHTML;
+
   document.getElementById('same-count').textContent = sameC;
   document.getElementById('add-count').textContent = addC;
   document.getElementById('del-count').textContent = delC;
+
+  // 同步滚动
+  leftPane.onscroll = function() { rightPane.scrollTop = leftPane.scrollTop; };
+  rightPane.onscroll = function() { leftPane.scrollTop = rightPane.scrollTop; };
 }
 
 function esc(text) {
@@ -185,23 +212,23 @@ function esc(text) {
 }
 
 function swapText() {
-  var tmp = leftEl.value;
-  leftEl.value = rightEl.value;
-  rightEl.value = tmp;
+  var tmp = leftPane.innerText;
+  leftPane.innerText = rightPane.innerText;
+  rightPane.innerText = tmp;
   doDiff();
 }
 
 function clearAll() {
-  leftEl.value = ''; rightEl.value = '';
-  outputEl.innerHTML = '<div class="empty-hint">输入两份文本后点击「对比」</div>';
+  leftPane.innerHTML = '<div class="empty-hint">在此粘贴旧版本...</div>';
+  rightPane.innerHTML = '<div class="empty-hint">在此粘贴新版本...</div>';
   document.getElementById('same-count').textContent = '0';
   document.getElementById('add-count').textContent = '0';
   document.getElementById('del-count').textContent = '0';
 }
 
 function loadDemo() {
-  leftEl.value = 'function hello() {\n  console.log("Hello");\n  console.log("World");\n  return 1;\n}\n\nfunction foo() {\n  return "old";\n}';
-  rightEl.value = 'function hello() {\n  console.log("Hello");\n  console.log("World");\n  console.log("!");\n  return 1;\n}\n\nfunction bar() {\n  return "new";\n}';
+  leftPane.innerText = 'function hello() {\n  console.log("Hello");\n  console.log("World");\n  return 1;\n}\n\nfunction foo() {\n  return "old";\n}';
+  rightPane.innerText = 'function hello() {\n  console.log("Hello");\n  console.log("World");\n  console.log("!");\n  return 1;\n}\n\nfunction bar() {\n  return "new";\n}';
   doDiff();
 }
 </script>
