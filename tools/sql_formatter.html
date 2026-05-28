@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL 单号格式化 - 工具箱</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+.container {
+  width: 100%;
+  max-width: 720px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  padding: 32px;
+}
+
+/* 顶部导航 */
+.topbar { margin-bottom: 24px; }
+.back {
+  text-decoration: none; color: #4f6ef7; font-size: 14px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.back:hover { color: #3b5de7; }
+
+h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
+.subtitle { font-size: 13px; color: #999; margin-bottom: 24px; }
+
+.label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px; font-size: 14px; color: #333; font-weight: 500;
+}
+.count { font-size: 12px; color: #999; font-weight: 400; }
+
+textarea {
+  width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  padding: 14px; font-size: 14px;
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+  line-height: 1.6; resize: vertical; transition: border-color .2s; outline: none;
+}
+textarea:focus { border-color: #4f6ef7; }
+#input-area { height: 200px; margin-bottom: 20px; }
+#output-area { height: 120px; background: #f8f9fa; }
+
+.actions { display: flex; gap: 12px; margin-top: 16px; }
+.btn {
+  padding: 10px 24px; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s;
+}
+.btn-primary { background: #4f6ef7; color: #fff; }
+.btn-primary:hover { background: #3b5de7; }
+.btn-secondary { background: #f0f2f5; color: #333; }
+.btn-secondary:hover { background: #e4e6eb; }
+
+.tips {
+  margin-top: 20px; padding: 12px 16px; background: #fffbe6;
+  border: 1px solid #ffe58f; border-radius: 8px;
+  font-size: 13px; color: #8c6e00; display: none;
+}
+.tips.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="topbar">
+    <a class="back" href="../index.html">&larr; 返回工具箱</a>
+  </div>
+
+  <h1>SQL 单号格式化</h1>
+  <p class="subtitle">支持换行、中文逗号、英文逗号、空格等分隔，自动转为 SQL IN 子句格式</p>
+
+  <div class="label">
+    <span>输入单号</span>
+    <span class="count" id="input-count">0 个</span>
+  </div>
+  <textarea id="input-area" placeholder="直接粘贴单号，支持换行、中文逗号(，)、英文逗号(,)、空格等分隔符&#10;&#10;示例：&#10;20240528001&#10;20240528002，20240528003,20240528004&#10;20240528005  20240528006"></textarea>
+
+  <div class="label">
+    <span>转换结果</span>
+    <span class="count" id="output-count">0 个</span>
+  </div>
+  <textarea id="output-area" readonly placeholder="点击「转换」按钮生成结果"></textarea>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="convert()">转换</button>
+    <button class="btn btn-secondary" onclick="copyResult()">复制结果</button>
+    <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+  </div>
+
+  <div class="tips" id="tips">已复制到剪贴板</div>
+</div>
+
+<script>
+var inputEl = document.getElementById('input-area');
+var outputEl = document.getElementById('output-area');
+var inputCount = document.getElementById('input-count');
+var outputCount = document.getElementById('output-count');
+var tipsEl = document.getElementById('tips');
+
+inputEl.addEventListener('input', function() {
+  inputCount.textContent = parse(inputEl.value).length + ' 个';
+});
+
+function parse(text) {
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  var parts = text.split(/[\n,，\s\t]+/);
+  return parts.map(function(p) { return p.trim(); }).filter(function(p) { return p; });
+}
+
+function convert() {
+  var nums = parse(inputEl.value);
+  if (nums.length === 0) { outputEl.value = ''; outputCount.textContent = '0 个'; return; }
+  outputEl.value = nums.map(function(n) { return "'" + n + "'"; }).join(', ');
+  outputCount.textContent = nums.length + ' 个';
+}
+
+function copyResult() {
+  if (!outputEl.value) return;
+  outputEl.select(); document.execCommand('copy');
+  if (navigator.clipboard) navigator.clipboard.writeText(outputEl.value);
+  tipsEl.classList.add('show');
+  setTimeout(function() { tipsEl.classList.remove('show'); }, 2000);
+}
+
+function clearAll() {
+  inputEl.value = ''; outputEl.value = '';
+  inputCount.textContent = '0 个'; outputCount.textContent = '0 个';
+}
+</script>
+
+</body>
+</html>
