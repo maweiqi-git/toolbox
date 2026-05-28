@@ -81,7 +81,7 @@ textarea:focus { border-color: #4f6ef7; }
     <!-- 左栏：输入 -->
     <div class="col-left">
       <div class="label"><span>输入</span><span class="hint">粘贴原始 JSON</span></div>
-      <textarea id="input-area" placeholder='粘贴 JSON，例如：{"name":"张三","age":25}' oninput="autoFormat()"></textarea>
+      <textarea id="input-area" placeholder='粘贴 JSON，例如：{"name":"张三","age":25}'></textarea>
 
       <div class="actions" style="margin-top:12px">
         <button class="btn btn-primary" onclick="formatNow()">格式化</button>
@@ -114,8 +114,12 @@ var outputEl = document.getElementById('output-area');
 var errorEl = document.getElementById('error-msg');
 var statEl = document.getElementById('stat');
 var tipsEl = document.getElementById('tips');
+var debounceTimer = null;
 
-function autoFormat() { formatNow(); }
+inputEl.addEventListener('input', function() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(function() { formatNow(); }, 300);
+});
 
 function formatNow() {
   var raw = inputEl.value.trim();
