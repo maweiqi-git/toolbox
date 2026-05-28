@@ -118,7 +118,11 @@ var debounceTimer = null;
 
 inputEl.addEventListener('input', function() {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(function() { formatNow(); }, 300);
+  debounceTimer = setTimeout(function() { formatNow(); }, 200);
+});
+// paste 事件立即触发
+inputEl.addEventListener('paste', function() {
+  setTimeout(function() { formatNow(); }, 50);
 });
 
 function formatNow() {
