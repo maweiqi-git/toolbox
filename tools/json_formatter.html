@@ -12,7 +12,7 @@ body {
   display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px;
 }
 .container {
-  width: 100%; max-width: 1100px; background: #fff;
+  width: 100%; max-width: 1400px; background: #fff;
   border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px;
 }
 .back { text-decoration: none; color: #4f6ef7; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 24px; }
@@ -22,7 +22,8 @@ h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
 
 /* 左右双栏 */
 .main-row { display: flex; gap: 20px; }
-.col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.col-left { flex: 0 0 38%; display: flex; flex-direction: column; min-width: 0; }
+.col-right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
 .label { font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px; display: flex; justify-content: space-between; }
 .label .hint { font-size: 12px; color: #999; font-weight: 400; }
@@ -79,7 +80,7 @@ textarea:focus { border-color: #4f6ef7; }
 
   <div class="main-row">
     <!-- 左栏：输入 -->
-    <div class="col">
+    <div class="col-left">
       <div class="label"><span>输入</span><span class="hint">粘贴原始 JSON</span></div>
       <textarea id="input-area" placeholder='粘贴 JSON，例如：{"name":"张三","age":25}' oninput="autoFormat()"></textarea>
 
@@ -99,7 +100,7 @@ textarea:focus { border-color: #4f6ef7; }
     </div>
 
     <!-- 右栏：结果 -->
-    <div class="col">
+    <div class="col-right">
       <div class="label"><span>结果</span><span class="stat" id="stat"></span></div>
       <textarea id="output-area" readonly placeholder="格式化结果将显示在这里"></textarea>
       <div class="actions" style="margin-top:12px">
