@@ -147,20 +147,23 @@ body {
   white-space: nowrap; flex-shrink: 0;
 }
 .note-row .note-text { font-size: 13px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
-.note-row .note-del {
-  background: none; border: none; font-size: 14px; cursor: pointer;
-  color: #ccc; padding: 2px 4px; flex-shrink: 0;
-}
-.note-row .note-del:hover { color: #ef4444; }
 .note-show {
   width: 100%; padding: 2px 0; display: flex; align-items: center; gap: 8px;
 }
 .note-show .note-text { font-size: 13px; color: #888; flex: 1; min-width: 0; }
-.note-show .note-del {
-  background: none; border: none; font-size: 14px; cursor: pointer;
-  color: #ccc; padding: 2px 4px; flex-shrink: 0;
+
+/* 分类备注 */
+.cat-note { margin-top: 18px; padding-top: 14px; border-top: 1px dashed #e0e0e0; }
+.cat-note .cn-label { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 8px; }
+.cat-note textarea {
+  width: 100%; border: 1px solid #e0e0e0; border-radius: 8px;
+  padding: 10px 14px; font-size: 13px; font-family: inherit; outline: none;
+  resize: vertical; min-height: 60px; transition: border .2s;
 }
-.note-show .note-del:hover { color: #ef4444; }
+.cat-note textarea:focus { border-color: #4f6ef7; }
+.cat-note .cn-actions { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+.cat-note .cn-saved { font-size: 13px; color: #16a34a; display: none; }
+.cat-note .cn-saved.show { display: inline; }
 </style>
 </head>
 <body>
@@ -256,6 +259,14 @@ body {
     <div class="dp-title" id="dp-title"></div>
     <div class="quick-links" id="dp-quick"></div>
     <div class="link-grid" id="dp-links"></div>
+    <div class="cat-note">
+      <div class="cn-label">&#128172; 分类备注</div>
+      <textarea id="cat-note-input" placeholder="记录缺失的链接或改进建议..."></textarea>
+      <div class="cn-actions">
+        <button class="note-save" onclick="saveCatNote()">保存备注</button>
+        <span class="cn-saved" id="cn-saved">&#10003; 已保存</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -434,13 +445,33 @@ function openDetail(name, color, bg, emoji, idx) {
         '<input id="ni-' + cellId + '" placeholder="写点备注..." value="' + escHtml(saved) + '" onkeydown="if(event.key===\'Enter\')saveNote(event,\'' + noteKey + '\',\'' + cellId + '\')">' +
         '<button class="note-save" onclick="saveNote(event, \'' + noteKey + '\', \'' + cellId + '\')">保存</button>' +
       '</div>' +
-      (saved ? '<div class="note-show" id="ns-' + cellId + '"><span class="note-text">' + escHtml(saved) + '</span><button class="note-del" onclick="delNote(event, \'' + noteKey + '\', \'' + cellId + '\')">&#10005;</button></div>' : '') +
+      (saved ? '<div class="note-show" id="ns-' + cellId + '"><span class="note-text">' + escHtml(saved) + '</span></div>' : '') +
       '</div>';
   }).join('');
   document.getElementById('dp-links').innerHTML = linksHTML;
 
+  // 加载分类备注
+  var catNoteKey = 'logbook_cat_' + idx;
+  var catSaved = localStorage.getItem(catNoteKey) || '';
+  document.getElementById('cat-note-input').value = catSaved;
+  document.getElementById('cat-note-input').dataset.noteKey = catNoteKey;
+
   overlay.classList.add('show');
   panel.classList.add('show');
+}
+
+function saveCatNote() {
+  var input = document.getElementById('cat-note-input');
+  var key = input.dataset.noteKey;
+  var val = input.value.trim();
+  if (val) {
+    localStorage.setItem(key, val);
+  } else {
+    localStorage.removeItem(key);
+  }
+  var el = document.getElementById('cn-saved');
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2000);
 }
 
 function closeDetail() {
@@ -481,14 +512,6 @@ function saveNote(e, key, cellId) {
   updateNoteUI(cellId, key);
 }
 
-function delNote(e, key, cellId) {
-  e.stopPropagation();
-  localStorage.removeItem(key);
-  document.getElementById('ni-' + cellId).value = '';
-  updateNoteUI(cellId, key);
-  toggleNote(e, key, cellId);
-}
-
 function updateNoteUI(cellId, key) {
   var btn = document.querySelector('#li-' + cellId + ' .note-btn');
   var noteShow = document.getElementById('ns-' + cellId);
@@ -508,7 +531,7 @@ function updateNoteUI(cellId, key) {
       var div = document.createElement('div');
       div.className = 'note-show';
       div.id = 'ns-' + cellId;
-      div.innerHTML = '<span class="note-text">' + escHtml(saved) + '</span><button class="note-del" onclick="delNote(event,\'' + key + '\',\'' + cellId + '\')">&#10005;</button>';
+      div.innerHTML = '<span class="note-text">' + escHtml(saved) + '</span>';
       linkItem.appendChild(div);
     }
   } else {
