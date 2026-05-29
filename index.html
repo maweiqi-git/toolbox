@@ -31,15 +31,6 @@ body {
   padding: 48px 24px 80px;
 }
 
-.section { margin-bottom: 48px; }
-.section-title {
-  font-size: 16px;
-  color: #888;
-  margin-bottom: 20px;
-  padding-left: 4px;
-  letter-spacing: .5px;
-}
-
 /* ====== 卡片网格 ====== */
 .grid {
   display: grid;
@@ -112,46 +103,36 @@ body {
 
 <div class="main">
 
-  <!-- 数据处理 -->
-  <div class="section">
-    <div class="section-title">数据处理</div>
-    <div class="grid">
-      <a class="card" href="tools/sql_formatter.html">
-        <div class="card-icon icon-blue">&#128225;</div>
-        <div class="card-title">SQL 单号格式化</div>
-        <div class="card-desc">粘贴单号自动加引号转逗号分隔，生成 IN 子句格式</div>
-      </a>
+  <div class="grid">
+    <a class="card" href="tools/logbook.html">
+      <div class="card-icon icon-red">&#128203;</div>
+      <div class="card-title">Logbook 速查</div>
+      <div class="card-desc">各业务线泰山日志查询入口，按业务分组，点击应用名直达</div>
+    </a>
 
-      <a class="card" href="tools/json_formatter.html">
-        <div class="card-icon icon-green">{ }</div>
-        <div class="card-title">JSON 格式化</div>
-        <div class="card-desc">美化、压缩、校验 JSON，一眼看清数据结构</div>
-      </a>
+    <a class="card" href="tools/sql_formatter.html">
+      <div class="card-icon icon-blue">&#128225;</div>
+      <div class="card-title">SQL 单号格式化</div>
+      <div class="card-desc">粘贴单号自动加引号转逗号分隔，生成 IN 子句格式</div>
+    </a>
 
-      <a class="card" href="tools/timestamp.html">
-        <div class="card-icon icon-orange">&#9202;</div>
-        <div class="card-title">时间戳转换</div>
-        <div class="card-desc">Unix 时间戳与日期互转，支持秒和毫秒</div>
-      </a>
-    </div>
-  </div>
+    <a class="card" href="tools/json_formatter.html">
+      <div class="card-icon icon-green">{ }</div>
+      <div class="card-title">JSON 格式化</div>
+      <div class="card-desc">美化、压缩、校验 JSON，一眼看清数据结构</div>
+    </a>
 
-  <!-- 文本工具 -->
-  <div class="section">
-    <div class="section-title">文本工具</div>
-    <div class="grid">
-      <a class="card" href="tools/text_diff.html">
-        <div class="card-icon icon-purple">&#8646;</div>
-        <div class="card-title">文本差异对比</div>
-        <div class="card-desc">逐行对比两份文本，标出新增、删除和相同行</div>
-      </a>
+    <a class="card" href="tools/timestamp.html">
+      <div class="card-icon icon-orange">&#9202;</div>
+      <div class="card-title">时间戳转换</div>
+      <div class="card-desc">Unix 时间戳与日期互转，支持秒和毫秒</div>
+    </a>
 
-      <a class="card" href="tools/logbook.html">
-        <div class="card-icon icon-red">&#128203;</div>
-        <div class="card-title">Logbook 速查</div>
-        <div class="card-desc">各业务线泰山日志查询入口，按业务分组，点击应用名直达</div>
-      </a>
-    </div>
+    <a class="card" href="tools/text_diff.html">
+      <div class="card-icon icon-purple">&#8646;</div>
+      <div class="card-title">文本差异对比</div>
+      <div class="card-desc">逐行对比两份文本，标出新增、删除和相同行</div>
+    </a>
   </div>
 
 </div>
