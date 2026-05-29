@@ -71,7 +71,7 @@ body {
 .detail-panel {
   display: none;
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 90%; max-width: 1000px; max-height: 80vh;
+  width: 95%; max-width: 1200px; max-height: 85vh;
   background: #fff; border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,.2);
   padding: 36px; overflow-y: auto; z-index: 100;
 }
@@ -110,10 +110,12 @@ body {
 }
 .link-item {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 14px; border-radius: 8px; font-size: 14px;
+  padding: 10px 14px; border-radius: 6px; font-size: 14px;
   transition: background .15s;
+  background: #fafbfc;
 }
-.link-item:hover { background: #f8f9fa; }
+.link-item:nth-child(even) { background: #f5f6f8; }
+.link-item:hover { background: #eef2ff; }
 .link-item .desc { color: #555; }
 .link-item .app {
   color: #4f6ef7; text-decoration: none; font-family: "SF Mono", Monaco, monospace;
