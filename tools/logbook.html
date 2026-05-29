@@ -316,7 +316,7 @@ function openDetail(idx) {
   }).join('');
 
   document.getElementById('dp-links').innerHTML = d.links.map(function(l, i) {
-    var appUrl = 'http://taishan.jd.com/logbook/query/history?appName=' + l[1] + '&platform=jdos';
+    var appUrl = 'https://dongmonitor.jd.com/logbook/query/history?appName=' + l[1] + '&platform=jdos';
     var noteKey = 'logbook_note_' + l[1];
     var saved = localStorage.getItem(noteKey) || '';
     var cellId = idx + '-' + i;
