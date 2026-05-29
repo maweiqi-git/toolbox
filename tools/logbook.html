@@ -107,47 +107,60 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 4px;
+  align-items: start;
 }
 .link-item {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
   padding: 10px 14px; border-radius: 6px; font-size: 14px;
   transition: background .15s;
-  background: #fafbfc;
+  background: #fafbfc; position: relative;
 }
 .link-item:nth-child(even) { background: #f5f6f8; }
 .link-item:hover { background: #eef2ff; }
-.link-item .desc { color: #555; }
+.link-item .desc { color: #555; flex-shrink: 0; }
 .link-item .app {
   color: #4f6ef7; text-decoration: none; font-family: "SF Mono", Monaco, monospace;
-  font-size: 13px; margin-left: 12px; white-space: nowrap;
+  font-size: 13px; margin-left: auto; margin-right: 8px; white-space: nowrap;
 }
 .link-item .app:hover { text-decoration: underline; }
 .link-item .note-btn {
-  margin-left: 8px; width: 24px; height: 24px; border-radius: 50%;
+  width: 24px; height: 24px; border-radius: 50%;
   border: 1px solid #e0e0e0; background: #fff; cursor: pointer; font-size: 12px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   color: #999; transition: all .15s;
 }
 .link-item .note-btn:hover { border-color: #4f6ef7; color: #4f6ef7; background: #eef2ff; }
 .link-item .note-btn.has-note { border-color: #f59e0b; color: #f59e0b; background: #fffbeb; }
-.note-row { margin-top: 4px; padding: 6px 10px; display: none; }
-.note-row.show { display: flex; gap: 8px; align-items: center; }
+.note-row {
+  width: 100%; margin-top: 4px; padding: 4px 0; display: none;
+  align-items: center; gap: 8px;
+}
+.note-row.show { display: flex; }
 .note-row input {
   flex: 1; border: 1px solid #e0e0e0; border-radius: 6px;
-  padding: 6px 10px; font-size: 13px; outline: none; font-family: inherit;
+  padding: 6px 10px; font-size: 13px; outline: none; font-family: inherit; min-width: 0;
 }
 .note-row input:focus { border-color: #4f6ef7; }
 .note-row .note-save {
   padding: 6px 14px; border: none; border-radius: 6px;
   background: #4f6ef7; color: #fff; font-size: 12px; cursor: pointer;
-  white-space: nowrap;
+  white-space: nowrap; flex-shrink: 0;
 }
-.note-row .note-text { font-size: 13px; color: #888; padding-left: 4px; }
+.note-row .note-text { font-size: 13px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
 .note-row .note-del {
   background: none; border: none; font-size: 14px; cursor: pointer;
-  color: #ccc; padding: 2px 6px;
+  color: #ccc; padding: 2px 4px; flex-shrink: 0;
 }
 .note-row .note-del:hover { color: #ef4444; }
+.note-show {
+  width: 100%; padding: 2px 0; display: flex; align-items: center; gap: 8px;
+}
+.note-show .note-text { font-size: 13px; color: #888; flex: 1; min-width: 0; }
+.note-show .note-del {
+  background: none; border: none; font-size: 14px; cursor: pointer;
+  color: #ccc; padding: 2px 4px; flex-shrink: 0;
+}
+.note-show .note-del:hover { color: #ef4444; }
 </style>
 </head>
 <body>
@@ -410,18 +423,19 @@ function openDetail(name, color, bg, emoji, idx) {
     var appUrl = 'http://taishan.jd.com/logbook/query/history?appName=' + l[1] + '&platform=jdos';
     var noteKey = 'logbook_note_' + l[1];
     var saved = localStorage.getItem(noteKey) || '';
+    var cellId = idx + '-' + i;
     var hasClass = saved ? ' has-note' : '';
-    var noteTitle = saved ? '备注: ' + saved.substring(0, 20) + '...' : '添加备注';
-    return '<div class="link-item">' +
+    var noteTitle = saved ? '备注: ' + saved.substring(0, 20) + (saved.length > 20 ? '...' : '') : '添加备注';
+    return '<div class="link-item" id="li-' + cellId + '">' +
       '<span class="desc">' + l[0] + '</span>' +
       '<a class="app" href="' + appUrl + '" target="_blank">' + l[1] + '</a>' +
-      '<button class="note-btn' + hasClass + '" title="' + noteTitle + '" onclick="toggleNote(event, \'' + noteKey + '\', \'' + l[1] + '\')">' + (saved ? '&#9993;' : '+') + '</button>' +
-      '<div class="note-row" id="nr-' + idx + '-' + i + '">' +
-        (saved ? '<span class="note-text" id="nt-' + idx + '-' + i + '">' + saved + '</span>' +
-         '<button class="note-del" onclick="delNote(event, \'' + noteKey + '\', \'' + idx + '-' + i + '\')">&#10005;</button>' : '') +
-        '<input id="ni-' + idx + '-' + i + '" placeholder="写点备注..." value="' + saved + '">' +
-        '<button class="note-save" onclick="saveNote(event, \'' + noteKey + '\', \'' + idx + '-' + i + '\', \'' + l[1] + '\')">保存</button>' +
-      '</div></div>';
+      '<button class="note-btn' + hasClass + '" title="' + escHtml(noteTitle) + '" onclick="toggleNote(event, \'' + noteKey + '\', \'' + cellId + '\')">' + (saved ? '&#9993;' : '+') + '</button>' +
+      '<div class="note-row" id="nr-' + cellId + '">' +
+        '<input id="ni-' + cellId + '" placeholder="写点备注..." value="' + escHtml(saved) + '" onkeydown="if(event.key===\'Enter\')saveNote(event,\'' + noteKey + '\',\'' + cellId + '\')">' +
+        '<button class="note-save" onclick="saveNote(event, \'' + noteKey + '\', \'' + cellId + '\')">保存</button>' +
+      '</div>' +
+      (saved ? '<div class="note-show" id="ns-' + cellId + '"><span class="note-text">' + escHtml(saved) + '</span><button class="note-del" onclick="delNote(event, \'' + noteKey + '\', \'' + cellId + '\')">&#10005;</button></div>' : '') +
+      '</div>';
   }).join('');
   document.getElementById('dp-links').innerHTML = linksHTML;
 
@@ -436,22 +450,25 @@ function closeDetail() {
 
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDetail(); });
 
-function toggleNote(e, key, app) {
+function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+function toggleNote(e, key, cellId) {
   e.stopPropagation();
-  var row = e.target.nextElementSibling;
-  row.classList.toggle('show');
-  var input = row.querySelector('input');
-  if (row.classList.contains('show')) {
-    input.focus();
-    if (!input.value) {
-      input.value = localStorage.getItem(key) || '';
-    }
+  var noteRow = document.getElementById('nr-' + cellId);
+  var noteShow = document.getElementById('ns-' + cellId);
+  var showing = noteRow.classList.contains('show');
+  if (showing) {
+    noteRow.classList.remove('show');
+    if (noteShow) noteShow.style.display = 'flex';
+    return;
   }
+  noteRow.classList.add('show');
+  if (noteShow) noteShow.style.display = 'none';
+  document.getElementById('ni-' + cellId).focus();
 }
 
-function saveNote(e, key, cellId, app) {
+function saveNote(e, key, cellId) {
   e.stopPropagation();
-  var row = e.target.parentElement;
   var input = document.getElementById('ni-' + cellId);
   var val = input.value.trim();
   if (val) {
@@ -459,65 +476,46 @@ function saveNote(e, key, cellId, app) {
   } else {
     localStorage.removeItem(key);
   }
-  row.classList.remove('show');
-  updateNoteBtn(cellId, key, app);
-  refreshNoteDisplay(cellId, val);
+  var noteRow = document.getElementById('nr-' + cellId);
+  noteRow.classList.remove('show');
+  updateNoteUI(cellId, key);
 }
 
 function delNote(e, key, cellId) {
   e.stopPropagation();
   localStorage.removeItem(key);
-  var row = document.getElementById('nr-' + cellId);
-  row.classList.add('show');
   document.getElementById('ni-' + cellId).value = '';
-  var textEl = document.getElementById('nt-' + cellId);
-  if (textEl) textEl.remove();
-  e.target.remove();
-  updateNoteBtn(cellId, key, '');
+  updateNoteUI(cellId, key);
+  toggleNote(e, key, cellId);
 }
 
-function updateNoteBtn(cellId, key, app) {
-  var row = document.getElementById('nr-' + cellId);
-  var btn = row.previousElementSibling;
-  // find the note-btn
-  while (btn && !btn.classList.contains('note-btn')) {
-    btn = btn.previousElementSibling;
-  }
-  if (!btn) return;
+function updateNoteUI(cellId, key) {
+  var btn = document.querySelector('#li-' + cellId + ' .note-btn');
+  var noteShow = document.getElementById('ns-' + cellId);
   var saved = localStorage.getItem(key) || '';
+
+  if (!btn) return;
+
   if (saved) {
     btn.classList.add('has-note');
     btn.innerHTML = '&#9993;';
-    btn.title = '备注: ' + saved.substring(0, 20) + (saved.length > 20 ? '...' : '');
+    btn.title = '备注: ' + saved.substring(0, 30) + (saved.length > 30 ? '...' : '');
+    if (noteShow) {
+      noteShow.querySelector('.note-text').textContent = saved;
+      noteShow.style.display = 'flex';
+    } else {
+      var linkItem = document.getElementById('li-' + cellId);
+      var div = document.createElement('div');
+      div.className = 'note-show';
+      div.id = 'ns-' + cellId;
+      div.innerHTML = '<span class="note-text">' + escHtml(saved) + '</span><button class="note-del" onclick="delNote(event,\'' + key + '\',\'' + cellId + '\')">&#10005;</button>';
+      linkItem.appendChild(div);
+    }
   } else {
     btn.classList.remove('has-note');
     btn.innerHTML = '+';
     btn.title = '添加备注';
-  }
-}
-
-function refreshNoteDisplay(cellId, val) {
-  var row = document.getElementById('nr-' + cellId);
-  var existingText = document.getElementById('nt-' + cellId);
-  var existingDel = row.querySelector('.note-del');
-  if (val) {
-    if (existingText) {
-      existingText.textContent = val;
-    } else {
-      var span = document.createElement('span');
-      span.className = 'note-text';
-      span.id = 'nt-' + cellId;
-      span.textContent = val;
-      row.insertBefore(span, row.querySelector('input'));
-      var del = document.createElement('button');
-      del.className = 'note-del';
-      del.textContent = '✕';
-      del.onclick = function(ev) { delNote(ev, 'logbook_note_' + cellId.split('-').slice(1).join('-'), cellId); };
-      row.insertBefore(del, row.querySelector('input'));
-    }
-  } else {
-    if (existingText) existingText.remove();
-    if (existingDel) existingDel.remove();
+    if (noteShow) { noteShow.style.display = 'none'; noteShow.querySelector('.note-text').textContent = ''; }
   }
 }
 </script>
