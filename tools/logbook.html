@@ -11,117 +11,106 @@ body {
   background: #f0f2f5;
   min-height: 100vh;
 }
-.topbar {
-  max-width: 1200px; margin: 0 auto; padding: 24px 20px 0;
-}
+.topbar { max-width: 1200px; margin: 0 auto; padding: 24px 20px 0; }
 .back {
   text-decoration: none; color: #4f6ef7; font-size: 14px;
   display: inline-flex; align-items: center; gap: 4px;
 }
 .back:hover { color: #3b5de7; }
-.header {
-  max-width: 1200px; margin: 0 auto; padding: 16px 20px 32px;
-}
+.header { max-width: 1200px; margin: 0 auto; padding: 16px 20px 16px; }
 .header h1 { font-size: 24px; color: #1a1a1a; }
 .header p  { font-size: 13px; color: #999; margin-top: 4px; }
 
-/* 卡片网格 */
-.main { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+.main { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; position: relative; }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
+  transition: all .35s ease;
+  min-height: 200px;
 }
 
 /* 卡片 */
 .cat-card {
   background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.06);
-  cursor: default; position: relative; overflow: hidden;
-  transition: all .25s ease;
-  min-height: 140px;
-}
-.cat-card:hover {
-  box-shadow: 0 8px 30px rgba(0,0,0,.12);
-  z-index: 10;
-}
-
-.card-face {
-  padding: 28px 24px;
+  cursor: pointer; overflow: hidden;
+  transition: all .35s ease;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 140px; text-align: center;
-  transition: opacity .2s;
-}
-.cat-card.expanded .card-face { display: none; }
-
-.card-dot {
-  width: 52px; height: 52px; border-radius: 14px; margin-bottom: 14px;
-  display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
-}
-.card-name { font-size: 18px; font-weight: 600; color: #1a1a1a; }
-.card-quick { font-size: 13px; color: #999; margin-top: 6px; }
-
-/* 展开内容 */
-.card-body {
-  display: none; padding: 20px 24px 8px;
-}
-.cat-card.expanded .card-body { display: block; }
-
-.card-body .body-title {
-  font-size: 16px; font-weight: 600; margin-bottom: 10px; padding-bottom: 10px;
-  border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px;
+  padding: 36px 24px; text-align: center; min-height: 150px;
 }
 
-.quick-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.cat-card .dot {
+  width: 56px; height: 56px; border-radius: 14px; margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
+}
+.cat-card .name { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+.cat-card .quick { font-size: 13px; color: #999; margin-top: 6px; }
+.cat-card .body { display: none; }
+
+/* 颜色 */
+.c-red    .dot { background: #fef2f2; color: #ef4444; }
+.c-blue   .dot { background: #eef2ff; color: #4f6ef7; }
+.c-green  .dot { background: #ecfdf5; color: #10b981; }
+.c-orange .dot { background: #fff7ed; color: #f97316; }
+.c-purple .dot { background: #f5f3ff; color: #8b5cf6; }
+.c-cyan   .dot { background: #ecfeff; color: #06b6d4; }
+.c-teal   .dot { background: #f0fdfa; color: #14b8a6; }
+.c-pink   .dot { background: #fdf2f8; color: #ec4899; }
+.c-gray   .dot { background: #f3f4f6; color: #6b7280; }
+.c-slate  .dot { background: #f1f5f9; color: #64748b; }
+
+/* === 展开态 === */
+.grid.expanded {
+  display: block;
+}
+.grid.expanded .cat-card {
+  opacity: 0; transform: scale(0.95); pointer-events: none;
+  position: absolute;
+}
+.grid.expanded .cat-card.active {
+  opacity: 1; transform: scale(1); pointer-events: auto;
+  position: relative; width: 100%; min-height: auto;
+  padding: 28px 32px; text-align: left; align-items: stretch;
+  justify-content: flex-start; cursor: default;
+}
+.grid.expanded .cat-card.active .face { display: none; }
+.grid.expanded .cat-card.active .body { display: block; }
+
+.body-title {
+  font-size: 20px; font-weight: 600; margin-bottom: 14px;
+  padding-bottom: 12px; border-bottom: 1px solid #eee;
+}
+.quick-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .quick-links a {
-  font-size: 12px; color: #4f6ef7; text-decoration: none;
-  padding: 3px 10px; background: #eef2ff; border-radius: 12px;
+  font-size: 13px; color: #4f6ef7; text-decoration: none;
+  padding: 4px 12px; background: #eef2ff; border-radius: 14px;
 }
 .quick-links a:hover { background: #dde4ff; }
 
-.link-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 4px;
+}
 .link-item {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 12px; border-radius: 6px; font-size: 13px; transition: background .15s;
+  padding: 10px 14px; border-radius: 8px; font-size: 14px;
+  transition: background .15s;
 }
 .link-item:hover { background: #f8f9fa; }
-.link-item .desc { color: #555; flex: 1; min-width: 0; }
+.link-item .desc { color: #555; }
 .link-item .app {
   color: #4f6ef7; text-decoration: none; font-family: "SF Mono", Monaco, monospace;
-  font-size: 12px; margin-left: 10px; white-space: nowrap;
+  font-size: 13px; margin-left: 12px; white-space: nowrap;
 }
 .link-item .app:hover { text-decoration: underline; }
 
-/* 颜色主题 */
-.c-red    .card-dot { background: #fef2f2; color: #ef4444; }
-.c-red    .body-title { color: #dc2626; }
-.c-red    .link-item:hover { background: #fefafafa; }
-
-.c-blue   .card-dot { background: #eef2ff; color: #4f6ef7; }
-.c-blue   .body-title { color: #4f6ef7; }
-
-.c-green  .card-dot { background: #ecfdf5; color: #10b981; }
-.c-green  .body-title { color: #059669; }
-
-.c-orange .card-dot { background: #fff7ed; color: #f97316; }
-.c-orange .body-title { color: #ea580c; }
-
-.c-purple .card-dot { background: #f5f3ff; color: #8b5cf6; }
-.c-purple .body-title { color: #7c3aed; }
-
-.c-cyan   .card-dot { background: #ecfeff; color: #06b6d4; }
-.c-cyan   .body-title { color: #0891b2; }
-
-.c-teal   .card-dot { background: #f0fdfa; color: #14b8a6; }
-.c-teal   .body-title { color: #0d9488; }
-
-.c-pink   .card-dot { background: #fdf2f8; color: #ec4899; }
-.c-pink   .body-title { color: #db2777; }
-
-.c-gray   .card-dot { background: #f3f4f6; color: #6b7280; }
-.c-gray   .body-title { color: #4b5563; }
-
-.c-slate  .card-dot { background: #f1f5f9; color: #64748b; }
-.c-slate  .body-title { color: #475569; }
+/* 空白区提示 */
+.empty-zone {
+  display: none; position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+  z-index: 1;
+}
+.grid.expanded .empty-zone { display: block; }
 </style>
 </head>
 <body>
@@ -132,28 +121,29 @@ body {
 
 <div class="header">
   <h1>Logbook 速查</h1>
-  <p>鼠标悬停卡片展开详情，移开自动收起</p>
+  <p>鼠标悬停卡片展开全页详情，移到空白处回到卡片模式</p>
 </div>
 
 <div class="main">
-  <div class="grid">
+  <div class="grid" id="grid">
+    <div class="empty-zone" onmouseenter="collapseAll()"></div>
 
     <!-- 仓配 -->
-    <div class="cat-card c-red" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#128230;</div>
-        <div class="card-name">仓配</div>
-        <div class="card-quick">履约OMG · 神行 · 仓海</div>
+    <div class="cat-card c-red" onmouseenter="expandCard(this)" id="card-0">
+      <div class="face">
+        <div class="dot">&#128230;</div>
+        <div class="name">仓配</div>
+        <div class="quick">履约OMG · 神行 · 仓海</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">仓配</div>
+      <div class="body">
+        <div class="body-title" style="color:#dc2626">仓配</div>
         <div class="quick-links">
           <a href="http://omg.jdl.com" target="_blank">履约OMG</a>
           <a href="http://batrix.jdl.com/order/unusualReport" target="_blank">神行</a>
           <a href="http://eclpadmin.jdl.com/#/index/content.do" target="_blank">仓海管理端</a>
           <a href="http://eclpmtn.jdl.com/#" target="_blank">仓海运维端</a>
         </div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">接入</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-isv&platform=jdos" target="_blank">eclp-isv</a></div>
           <div class="link-item"><span class="desc">SOP单据</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-isv&platform=jdos" target="_blank">eclp-sop</a></div>
           <div class="link-item"><span class="desc">非百川订单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-so&platform=jdos" target="_blank">eclp-so</a></div>
@@ -168,20 +158,20 @@ body {
     </div>
 
     <!-- 快快纯配 -->
-    <div class="cat-card c-blue" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#9889;</div>
-        <div class="card-name">快快纯配</div>
-        <div class="card-quick">CT代码链路 · BC纯配接单 · 神行</div>
+    <div class="cat-card c-blue" onmouseenter="expandCard(this)" id="card-1">
+      <div class="face">
+        <div class="dot">&#9889;</div>
+        <div class="name">快快纯配</div>
+        <div class="quick">CT代码链路 · BC纯配接单 · 神行</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">快快纯配</div>
+      <div class="body">
+        <div class="body-title" style="color:#4f6ef7">快快纯配</div>
         <div class="quick-links">
           <a href="http://ct.jdl.com" target="_blank">CT代码链路</a>
           <a href="http://web.ka.jdl.com" target="_blank">BC纯配接单</a>
           <a href="http://batrix.jdl.com/order/unusualReport" target="_blank">神行</a>
         </div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">商家工作台快递</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-business-nirvana&platform=jdos" target="_blank">eclp-business-nirvana</a></div>
           <div class="link-item"><span class="desc">快运渠道接单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=kys-platform&platform=jdos" target="_blank">kys-platform</a></div>
           <div class="link-item"><span class="desc">快快接入：jos、物流开放平台</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-eca-adapter&platform=jdos" target="_blank">jdl-eca-adapter</a></div>
@@ -203,15 +193,15 @@ body {
     </div>
 
     <!-- 冷链 -->
-    <div class="cat-card c-green" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#10052;</div>
-        <div class="card-name">冷链</div>
-        <div class="card-quick">冷链接入 · 订单中心 · OFC</div>
+    <div class="cat-card c-green" onmouseenter="expandCard(this)" id="card-2">
+      <div class="face">
+        <div class="dot">&#10052;</div>
+        <div class="name">冷链</div>
+        <div class="quick">冷链接入 · 订单中心 · OFC</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">冷链</div>
-        <div class="link-list">
+      <div class="body">
+        <div class="body-title" style="color:#059669">冷链</div>
+        <div class="link-grid">
           <div class="link-item"><span class="desc">冷链接入</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cc-cap-adapter&platform=jdos" target="_blank">cc-cap-adapter</a></div>
           <div class="link-item"><span class="desc">冷链小程序</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=coldchain-jdexpress&platform=jdos" target="_blank">coldchain-jdexpress</a></div>
           <div class="link-item"><span class="desc">冷链接入：标准能力</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cc-cap-standard-ability&platform=jdos" target="_blank">cc-cap-standard-ability</a></div>
@@ -226,16 +216,16 @@ body {
     </div>
 
     <!-- 大件纯配 -->
-    <div class="cat-card c-orange" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#128666;</div>
-        <div class="card-name">大件纯配</div>
-        <div class="card-quick">大件接入 · 百川分流 · OFC</div>
+    <div class="cat-card c-orange" onmouseenter="expandCard(this)" id="card-3">
+      <div class="face">
+        <div class="dot">&#128666;</div>
+        <div class="name">大件纯配</div>
+        <div class="quick">大件接入 · 百川分流 · OFC</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">大件纯配</div>
+      <div class="body">
+        <div class="body-title" style="color:#ea580c">大件纯配</div>
         <div class="quick-links"><a href="http://olp.jdl.com/" target="_blank">大件运单中心</a></div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">大件接入</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-isv&platform=jdos" target="_blank">eclp-isv</a></div>
           <div class="link-item"><span class="desc">百川分流CO</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-co&platform=jdos" target="_blank">eclp-co</a></div>
           <div class="link-item"><span class="desc">百川适配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=request-router&platform=jdos" target="_blank">request-router</a></div>
@@ -249,16 +239,16 @@ body {
     </div>
 
     <!-- TC -->
-    <div class="cat-card c-purple" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#128752;</div>
-        <div class="card-name">TC</div>
-        <div class="card-quick">转运系统 · 订单中心 · OFC</div>
+    <div class="cat-card c-purple" onmouseenter="expandCard(this)" id="card-4">
+      <div class="face">
+        <div class="dot">&#128752;</div>
+        <div class="name">TC</div>
+        <div class="quick">转运系统 · 订单中心 · OFC</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">TC</div>
+      <div class="body">
+        <div class="body-title" style="color:#7c3aed">TC</div>
         <div class="quick-links"><a href="http://trans.jdl.com/" target="_blank">转运系统</a></div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">商家工作台等下单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=seller-workbench-center&platform=jdos" target="_blank">seller-workbench-center</a></div>
           <div class="link-item"><span class="desc">接入层处理</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=seller-workbench-worker&platform=jdos" target="_blank">seller-workbench-worker</a></div>
           <div class="link-item"><span class="desc">TC订单中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-oms-doo&platform=jdos" target="_blank">jdl-oms-doo</a></div>
@@ -272,16 +262,16 @@ body {
     </div>
 
     <!-- 无界 -->
-    <div class="cat-card c-cyan" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#127760;</div>
-        <div class="card-name">无界</div>
-        <div class="card-quick">阿尔法系统 · 下单 · 接单处理</div>
+    <div class="cat-card c-cyan" onmouseenter="expandCard(this)" id="card-5">
+      <div class="face">
+        <div class="dot">&#127760;</div>
+        <div class="name">无界</div>
+        <div class="quick">阿尔法系统 · 下单 · 接单处理</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">无界</div>
+      <div class="body">
+        <div class="body-title" style="color:#0891b2">无界</div>
         <div class="quick-links"><a href="http://ldopwaybill.jdl.com/" target="_blank">阿尔法系统</a></div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">无界下单相关</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=ldop-alpha-waybill-provider&platform=jdos" target="_blank">ldop-alpha-waybill-provider</a></div>
           <div class="link-item"><span class="desc">无界接单后处理，调gis匹配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=ldop-alpha-waybill-worker&platform=jdos" target="_blank">ldop-alpha-waybill-worker</a></div>
         </div>
@@ -289,21 +279,21 @@ body {
     </div>
 
     <!-- B2B运输 -->
-    <div class="cat-card c-teal" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#128739;</div>
-        <div class="card-name">B2B运输</div>
-        <div class="card-quick">分单 · 调度 · 合同物流</div>
+    <div class="cat-card c-teal" onmouseenter="expandCard(this)" id="card-6">
+      <div class="face">
+        <div class="dot">&#128739;</div>
+        <div class="name">B2B运输</div>
+        <div class="quick">分单 · 调度 · 合同物流</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">B2B运输</div>
+      <div class="body">
+        <div class="body-title" style="color:#0d9488">B2B运输</div>
         <div class="quick-links">
           <a href="http://dispatch.jdl.com" target="_blank">分单控制台</a>
           <a href="http://wb.b2b.jdl.com/" target="_blank">运输调度</a>
           <a href="http://b2b-basic.jdl.com/b2bContractAddress" target="_blank">合同物流配置</a>
           <a href="http://scm.jdl.com/" target="_blank">供应链管理</a>
         </div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">接单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-orc-web&platform=jdos" target="_blank">tms-orc-web</a></div>
           <div class="link-item"><span class="desc">调度</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-jdi-web&platform=jdos" target="_blank">tms-jdi-web</a></div>
           <div class="link-item"><span class="desc">工作台</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-workbench-web&platform=jdos" target="_blank">tms-workbench-web</a></div>
@@ -313,20 +303,20 @@ body {
       </div>
     </div>
 
-    <!-- CRM/LCC -->
-    <div class="cat-card c-pink" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#128101;</div>
-        <div class="card-name">CRM / LCC</div>
-        <div class="card-quick">CRM · LCC</div>
+    <!-- CRM / LCC -->
+    <div class="cat-card c-pink" onmouseenter="expandCard(this)" id="card-7">
+      <div class="face">
+        <div class="dot">&#128101;</div>
+        <div class="name">CRM / LCC</div>
+        <div class="quick">CRM · LCC</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">CRM / LCC</div>
+      <div class="body">
+        <div class="body-title" style="color:#db2777">CRM / LCC</div>
         <div class="quick-links">
           <a href="http://scrm.jdl.com/crm-ui/customer/list" target="_blank">CRM</a>
           <a href="http://yfb-lccadmin.jdl.com/home?key=1725334217718" target="_blank">LCC</a>
         </div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">CRM</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-crm-quotation&platform=jdos" target="_blank">jdl-crm-quotation</a></div>
           <div class="link-item"><span class="desc">LCC</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=wl-contract-service&platform=jdos" target="_blank">wl-contract-service</a></div>
         </div>
@@ -334,19 +324,19 @@ body {
     </div>
 
     <!-- 平台 -->
-    <div class="cat-card c-gray" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#9881;</div>
-        <div class="card-name">平台</div>
-        <div class="card-quick">运单 · 预分拣 · 拦截</div>
+    <div class="cat-card c-gray" onmouseenter="expandCard(this)" id="card-8">
+      <div class="face">
+        <div class="dot">&#9881;</div>
+        <div class="name">平台</div>
+        <div class="quick">运单 · 预分拣 · 拦截</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">平台</div>
+      <div class="body">
+        <div class="body-title" style="color:#4b5563">平台</div>
         <div class="quick-links">
           <a href="http://scrm.jdl.com/crm-ui/customer/list" target="_blank">CRM</a>
           <a href="http://yfb-lccadmin.jdl.com/home?key=1725334217718" target="_blank">LCC</a>
         </div>
-        <div class="link-list">
+        <div class="link-grid">
           <div class="link-item"><span class="desc">运单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=waybill-center&platform=jdos" target="_blank">waybill-center</a></div>
           <div class="link-item"><span class="desc">预分拣</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=preseparate-jsf&platform=jdos" target="_blank">preseparate-jsf</a></div>
           <div class="link-item"><span class="desc">拦截系统</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=etms-blocker-worker&platform=jdos" target="_blank">etms-blocker-worker</a></div>
@@ -357,15 +347,15 @@ body {
     </div>
 
     <!-- 物流开放平台 -->
-    <div class="cat-card c-slate" onmouseenter="expand(this)" onmouseleave="collapse(this)">
-      <div class="card-face">
-        <div class="card-dot">&#128640;</div>
-        <div class="card-name">物流开放平台</div>
-        <div class="card-quick">运单 · 轨迹服务</div>
+    <div class="cat-card c-slate" onmouseenter="expandCard(this)" id="card-9">
+      <div class="face">
+        <div class="dot">&#128640;</div>
+        <div class="name">物流开放平台</div>
+        <div class="quick">运单 · 轨迹服务</div>
       </div>
-      <div class="card-body">
-        <div class="body-title">物流开放平台</div>
-        <div class="link-list">
+      <div class="body">
+        <div class="body-title" style="color:#475569">物流开放平台</div>
+        <div class="link-grid">
           <div class="link-item"><span class="desc">运单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=waybill-center&platform=jdos" target="_blank">waybill-center</a></div>
           <div class="link-item"><span class="desc">标准轨迹服务——订阅</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tracking-facade&platform=jdos" target="_blank">tracking-facade</a></div>
           <div class="link-item"><span class="desc">标准轨迹服务——推送</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tracing-router&platform=jdos" target="_blank">tracing-router</a></div>
@@ -377,8 +367,24 @@ body {
 </div>
 
 <script>
-function expand(card) { card.classList.add('expanded'); }
-function collapse(card) { card.classList.remove('expanded'); }
+var grid = document.getElementById('grid');
+
+function expandCard(card) {
+  grid.classList.add('expanded');
+  var cards = grid.querySelectorAll('.cat-card');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].classList.remove('active');
+  }
+  card.classList.add('active');
+}
+
+function collapseAll() {
+  grid.classList.remove('expanded');
+  var cards = grid.querySelectorAll('.cat-card');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].classList.remove('active');
+  }
+}
 </script>
 </body>
 </html>
