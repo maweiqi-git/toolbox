@@ -22,22 +22,23 @@ body {
 .header p  { font-size: 13px; color: #999; margin-top: 4px; }
 
 .main { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; position: relative; }
+
+/* 卡片网格 */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
-  transition: all .35s ease;
-  min-height: 200px;
 }
 
 /* 卡片 */
 .cat-card {
   background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.06);
-  cursor: pointer; overflow: hidden;
-  transition: all .35s ease;
+  cursor: pointer;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 36px 24px; text-align: center; min-height: 150px;
+  transition: box-shadow .25s ease, transform .25s ease;
 }
+.cat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
 
 .cat-card .dot {
   width: 56px; height: 56px; border-radius: 14px; margin-bottom: 16px;
@@ -45,7 +46,6 @@ body {
 }
 .cat-card .name { font-size: 18px; font-weight: 600; color: #1a1a1a; }
 .cat-card .quick { font-size: 13px; color: #999; margin-top: 6px; }
-.cat-card .body { display: none; }
 
 /* 颜色 */
 .c-red    .dot { background: #fef2f2; color: #ef4444; }
@@ -59,31 +59,47 @@ body {
 .c-gray   .dot { background: #f3f4f6; color: #6b7280; }
 .c-slate  .dot { background: #f1f5f9; color: #64748b; }
 
-/* === 展开态 === */
-.grid.expanded {
-  display: block;
+/* 遮罩 */
+.overlay {
+  display: none;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,.3); z-index: 99;
 }
-.grid.expanded .cat-card {
-  opacity: 0; transform: scale(0.95); pointer-events: none;
-  position: absolute;
-}
-.grid.expanded .cat-card.active {
-  opacity: 1; transform: scale(1); pointer-events: auto;
-  position: relative; width: 100%; min-height: auto;
-  padding: 28px 32px; text-align: left; align-items: stretch;
-  justify-content: flex-start; cursor: default;
-}
-.grid.expanded .cat-card.active .face { display: none; }
-.grid.expanded .cat-card.active .body { display: block; }
+.overlay.show { display: block; }
 
-.body-title {
-  font-size: 20px; font-weight: 600; margin-bottom: 14px;
-  padding-bottom: 12px; border-bottom: 1px solid #eee;
+/* 详情面板 */
+.detail-panel {
+  display: none;
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 90%; max-width: 1000px; max-height: 80vh;
+  background: #fff; border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,.2);
+  padding: 36px; overflow-y: auto; z-index: 100;
 }
-.quick-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.detail-panel.show { display: block; }
+
+.detail-panel .dp-close {
+  position: absolute; top: 16px; right: 20px;
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: #f0f2f5; font-size: 18px; cursor: pointer; color: #666;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.detail-panel .dp-close:hover { background: #e0e0e0; }
+
+.detail-panel .dp-title {
+  font-size: 24px; font-weight: 600; margin-bottom: 16px;
+  padding-bottom: 14px; border-bottom: 1px solid #eee;
+  display: flex; align-items: center; gap: 10px;
+}
+.detail-panel .dp-dot {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+
+.quick-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
 .quick-links a {
   font-size: 13px; color: #4f6ef7; text-decoration: none;
-  padding: 4px 12px; background: #eef2ff; border-radius: 14px;
+  padding: 5px 14px; background: #eef2ff; border-radius: 14px;
 }
 .quick-links a:hover { background: #dde4ff; }
 
@@ -104,13 +120,6 @@ body {
   font-size: 13px; margin-left: 12px; white-space: nowrap;
 }
 .link-item .app:hover { text-decoration: underline; }
-
-/* 空白区提示 */
-.empty-zone {
-  display: none; position: absolute; left: 0; right: 0; top: 0; bottom: 0;
-  z-index: 1;
-}
-.grid.expanded .empty-zone { display: block; }
 </style>
 </head>
 <body>
@@ -121,270 +130,270 @@ body {
 
 <div class="header">
   <h1>Logbook 速查</h1>
-  <p>鼠标悬停卡片展开全页详情，移到空白处回到卡片模式</p>
+  <p>点击卡片查看详情，点击遮罩关闭</p>
 </div>
 
 <div class="main">
-  <div class="grid" id="grid">
-    <div class="empty-zone" onmouseenter="collapseAll()"></div>
+  <div class="grid">
 
     <!-- 仓配 -->
-    <div class="cat-card c-red" onmouseenter="expandCard(this)" id="card-0">
-      <div class="face">
-        <div class="dot">&#128230;</div>
-        <div class="name">仓配</div>
-        <div class="quick">履约OMG · 神行 · 仓海</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#dc2626">仓配</div>
-        <div class="quick-links">
-          <a href="http://omg.jdl.com" target="_blank">履约OMG</a>
-          <a href="http://batrix.jdl.com/order/unusualReport" target="_blank">神行</a>
-          <a href="http://eclpadmin.jdl.com/#/index/content.do" target="_blank">仓海管理端</a>
-          <a href="http://eclpmtn.jdl.com/#" target="_blank">仓海运维端</a>
-        </div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">接入</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-isv&platform=jdos" target="_blank">eclp-isv</a></div>
-          <div class="link-item"><span class="desc">SOP单据</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-isv&platform=jdos" target="_blank">eclp-sop</a></div>
-          <div class="link-item"><span class="desc">非百川订单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-so&platform=jdos" target="_blank">eclp-so</a></div>
-          <div class="link-item"><span class="desc">百川订单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-oms-outbound&platform=jdos" target="_blank">jdl-oms-outbound</a></div>
-          <div class="link-item"><span class="desc">青龙适配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-bd&platform=jdos" target="_blank">eclp-bd</a></div>
-          <div class="link-item"><span class="desc">百川仓配履约</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=ofw-outbound&platform=jdos" target="_blank">ofw-outbound</a></div>
-          <div class="link-item"><span class="desc">产业平台</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=csc-channel&platform=jdos" target="_blank">csc-channel</a></div>
-          <div class="link-item"><span class="desc">产业平台</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=clps-ucs&platform=jdos" target="_blank">clps-ucs</a></div>
-          <div class="link-item"><span class="desc">承运商分单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-os-service&platform=jdos" target="_blank">eclp-os-service</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-red" onclick="openDetail('仓配','#ef4444','#fef2f2','&#128230;',0)">
+      <div class="dot">&#128230;</div>
+      <div class="name">仓配</div>
+      <div class="quick">履约OMG · 神行 · 仓海</div>
     </div>
 
     <!-- 快快纯配 -->
-    <div class="cat-card c-blue" onmouseenter="expandCard(this)" id="card-1">
-      <div class="face">
-        <div class="dot">&#9889;</div>
-        <div class="name">快快纯配</div>
-        <div class="quick">CT代码链路 · BC纯配接单 · 神行</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#4f6ef7">快快纯配</div>
-        <div class="quick-links">
-          <a href="http://ct.jdl.com" target="_blank">CT代码链路</a>
-          <a href="http://web.ka.jdl.com" target="_blank">BC纯配接单</a>
-          <a href="http://batrix.jdl.com/order/unusualReport" target="_blank">神行</a>
-        </div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">商家工作台快递</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-business-nirvana&platform=jdos" target="_blank">eclp-business-nirvana</a></div>
-          <div class="link-item"><span class="desc">快运渠道接单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=kys-platform&platform=jdos" target="_blank">kys-platform</a></div>
-          <div class="link-item"><span class="desc">快快接入：jos、物流开放平台</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-eca-adapter&platform=jdos" target="_blank">jdl-eca-adapter</a></div>
-          <div class="link-item"><span class="desc">快递小程序</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=express-na&platform=jdos" target="_blank">express-na</a></div>
-          <div class="link-item"><span class="desc">快递小程序</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=express-na-product&platform=jdos" target="_blank">express-na-product</a></div>
-          <div class="link-item"><span class="desc">快快接入：标准能力</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-eca-standard-ability&platform=jdos" target="_blank">jdl-eca-standard-ability</a></div>
-          <div class="link-item"><span class="desc">纯配订单中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-oms-express&platform=jdos" target="_blank">jdl-oms-express</a></div>
-          <div class="link-item"><span class="desc">快快OFC</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cp-eofc-application&platform=jdos" target="_blank">cp-eofc-application</a></div>
-          <div class="link-item"><span class="desc">快快OFC-worker</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cp-eofc-worker&platform=jdos" target="_blank">cp-eofc-worker</a></div>
-          <div class="link-item"><span class="desc">产品中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-pms-service&platform=jdos" target="_blank">jdl-pms-service</a></div>
-          <div class="link-item"><span class="desc">路由校验</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=vrs-platform-outer&platform=jdos" target="_blank">vrs-platform-outer</a></div>
-          <div class="link-item"><span class="desc">路由系统</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=route-link-service&platform=jdos" target="_blank">route-link-service</a></div>
-          <div class="link-item"><span class="desc">是否支持京配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=dmsrec-ql-jd-com&platform=jdos" target="_blank">dmsrec-ql-jd-com</a></div>
-          <div class="link-item"><span class="desc">运费、询价相关</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=lbs-product-inquiry&platform=jdos" target="_blank">lbs-product-inquiry</a></div>
-          <div class="link-item"><span class="desc">终端揽收、转网、询价</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tos-collect-server&platform=jdos" target="_blank">tos-collect-server</a></div>
-          <div class="link-item"><span class="desc">终端派送</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tos-delivery-provider&platform=jdos" target="_blank">tos-delivery-provider</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-blue" onclick="openDetail('快快纯配','#4f6ef7','#eef2ff','&#9889;',1)">
+      <div class="dot">&#9889;</div>
+      <div class="name">快快纯配</div>
+      <div class="quick">CT代码链路 · BC纯配接单 · 神行</div>
     </div>
 
     <!-- 冷链 -->
-    <div class="cat-card c-green" onmouseenter="expandCard(this)" id="card-2">
-      <div class="face">
-        <div class="dot">&#10052;</div>
-        <div class="name">冷链</div>
-        <div class="quick">冷链接入 · 订单中心 · OFC</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#059669">冷链</div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">冷链接入</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cc-cap-adapter&platform=jdos" target="_blank">cc-cap-adapter</a></div>
-          <div class="link-item"><span class="desc">冷链小程序</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=coldchain-jdexpress&platform=jdos" target="_blank">coldchain-jdexpress</a></div>
-          <div class="link-item"><span class="desc">冷链接入：标准能力</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cc-cap-standard-ability&platform=jdos" target="_blank">cc-cap-standard-ability</a></div>
-          <div class="link-item"><span class="desc">订单中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-oms-express&platform=jdos" target="_blank">jdl-oms-express</a></div>
-          <div class="link-item"><span class="desc">OFC</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cp-eofc-application&platform=jdos" target="_blank">cp-eofc-application</a></div>
-          <div class="link-item"><span class="desc">产品中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-pms-service&platform=jdos" target="_blank">jdl-pms-service</a></div>
-          <div class="link-item"><span class="desc">路由校验</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=vrs-platform-outer&platform=jdos" target="_blank">vrs-platform-outer</a></div>
-          <div class="link-item"><span class="desc">是否支持京配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=dmsrec-ql-jd-com&platform=jdos" target="_blank">dmsrec-ql-jd-com</a></div>
-          <div class="link-item"><span class="desc">运费、询价相关</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=lbs-product-inquiry&platform=jdos" target="_blank">lbs-product-inquiry</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-green" onclick="openDetail('冷链','#10b981','#ecfdf5','&#10052;',2)">
+      <div class="dot">&#10052;</div>
+      <div class="name">冷链</div>
+      <div class="quick">冷链接入 · 订单中心 · OFC</div>
     </div>
 
     <!-- 大件纯配 -->
-    <div class="cat-card c-orange" onmouseenter="expandCard(this)" id="card-3">
-      <div class="face">
-        <div class="dot">&#128666;</div>
-        <div class="name">大件纯配</div>
-        <div class="quick">大件接入 · 百川分流 · OFC</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#ea580c">大件纯配</div>
-        <div class="quick-links"><a href="http://olp.jdl.com/" target="_blank">大件运单中心</a></div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">大件接入</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-isv&platform=jdos" target="_blank">eclp-isv</a></div>
-          <div class="link-item"><span class="desc">百川分流CO</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=eclp-co&platform=jdos" target="_blank">eclp-co</a></div>
-          <div class="link-item"><span class="desc">百川适配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=request-router&platform=jdos" target="_blank">request-router</a></div>
-          <div class="link-item"><span class="desc">订单中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-oms-express&platform=jdos" target="_blank">jdl-oms-express</a></div>
-          <div class="link-item"><span class="desc">大件OFC适配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=las-waybill-adapter&platform=jdos" target="_blank">las-waybill-adapter</a></div>
-          <div class="link-item"><span class="desc">大件拒单服务</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=las-wb-adapter-service&platform=jdos" target="_blank">las-wb-adapter-service</a></div>
-          <div class="link-item"><span class="desc">大件中间件</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=lbmw-orderinfo&platform=jdos" target="_blank">lbmw-orderinfo</a></div>
-          <div class="link-item"><span class="desc">大件外单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=las-olp-receiving&platform=jdos" target="_blank">las-olp-receiving</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-orange" onclick="openDetail('大件纯配','#f97316','#fff7ed','&#128666;',3)">
+      <div class="dot">&#128666;</div>
+      <div class="name">大件纯配</div>
+      <div class="quick">大件接入 · 百川分流 · OFC</div>
     </div>
 
     <!-- TC -->
-    <div class="cat-card c-purple" onmouseenter="expandCard(this)" id="card-4">
-      <div class="face">
-        <div class="dot">&#128752;</div>
-        <div class="name">TC</div>
-        <div class="quick">转运系统 · 订单中心 · OFC</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#7c3aed">TC</div>
-        <div class="quick-links"><a href="http://trans.jdl.com/" target="_blank">转运系统</a></div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">商家工作台等下单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=seller-workbench-center&platform=jdos" target="_blank">seller-workbench-center</a></div>
-          <div class="link-item"><span class="desc">接入层处理</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=seller-workbench-worker&platform=jdos" target="_blank">seller-workbench-worker</a></div>
-          <div class="link-item"><span class="desc">TC订单中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-oms-doo&platform=jdos" target="_blank">jdl-oms-doo</a></div>
-          <div class="link-item"><span class="desc">TCOFC</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=trans-ofc&platform=jdos" target="_blank">trans-ofc</a></div>
-          <div class="link-item"><span class="desc">运单中心</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=cp-wbms&platform=jdos" target="_blank">cp-wbms</a></div>
-          <div class="link-item"><span class="desc">外单接单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=lbcc-delivery-provider&platform=jdos" target="_blank">lbcc-delivery-provider</a></div>
-          <div class="link-item"><span class="desc">转运系统</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=trans-tc&platform=jdos" target="_blank">trans-tc</a></div>
-          <div class="link-item"><span class="desc">转运系统资料</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=trans-basic&platform=jdos" target="_blank">trans-basic</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-purple" onclick="openDetail('TC','#8b5cf6','#f5f3ff','&#128752;',4)">
+      <div class="dot">&#128752;</div>
+      <div class="name">TC</div>
+      <div class="quick">转运系统 · 订单中心 · OFC</div>
     </div>
 
     <!-- 无界 -->
-    <div class="cat-card c-cyan" onmouseenter="expandCard(this)" id="card-5">
-      <div class="face">
-        <div class="dot">&#127760;</div>
-        <div class="name">无界</div>
-        <div class="quick">阿尔法系统 · 下单 · 接单处理</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#0891b2">无界</div>
-        <div class="quick-links"><a href="http://ldopwaybill.jdl.com/" target="_blank">阿尔法系统</a></div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">无界下单相关</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=ldop-alpha-waybill-provider&platform=jdos" target="_blank">ldop-alpha-waybill-provider</a></div>
-          <div class="link-item"><span class="desc">无界接单后处理，调gis匹配</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=ldop-alpha-waybill-worker&platform=jdos" target="_blank">ldop-alpha-waybill-worker</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-cyan" onclick="openDetail('无界','#06b6d4','#ecfeff','&#127760;',5)">
+      <div class="dot">&#127760;</div>
+      <div class="name">无界</div>
+      <div class="quick">阿尔法系统 · 下单 · 接单处理</div>
     </div>
 
     <!-- B2B运输 -->
-    <div class="cat-card c-teal" onmouseenter="expandCard(this)" id="card-6">
-      <div class="face">
-        <div class="dot">&#128739;</div>
-        <div class="name">B2B运输</div>
-        <div class="quick">分单 · 调度 · 合同物流</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#0d9488">B2B运输</div>
-        <div class="quick-links">
-          <a href="http://dispatch.jdl.com" target="_blank">分单控制台</a>
-          <a href="http://wb.b2b.jdl.com/" target="_blank">运输调度</a>
-          <a href="http://b2b-basic.jdl.com/b2bContractAddress" target="_blank">合同物流配置</a>
-          <a href="http://scm.jdl.com/" target="_blank">供应链管理</a>
-        </div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">接单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-orc-web&platform=jdos" target="_blank">tms-orc-web</a></div>
-          <div class="link-item"><span class="desc">调度</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-jdi-web&platform=jdos" target="_blank">tms-jdi-web</a></div>
-          <div class="link-item"><span class="desc">工作台</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-workbench-web&platform=jdos" target="_blank">tms-workbench-web</a></div>
-          <div class="link-item"><span class="desc">计费</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tms-bms-web&platform=jdos" target="_blank">tms-bms-web</a></div>
-          <div class="link-item"><span class="desc">合同物流始发地</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=scm-b2b-basic-web&platform=jdos" target="_blank">scm-b2b-basic-web</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-teal" onclick="openDetail('B2B运输','#14b8a6','#f0fdfa','&#128739;',6)">
+      <div class="dot">&#128739;</div>
+      <div class="name">B2B运输</div>
+      <div class="quick">分单 · 调度 · 合同物流</div>
     </div>
 
-    <!-- CRM / LCC -->
-    <div class="cat-card c-pink" onmouseenter="expandCard(this)" id="card-7">
-      <div class="face">
-        <div class="dot">&#128101;</div>
-        <div class="name">CRM / LCC</div>
-        <div class="quick">CRM · LCC</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#db2777">CRM / LCC</div>
-        <div class="quick-links">
-          <a href="http://scrm.jdl.com/crm-ui/customer/list" target="_blank">CRM</a>
-          <a href="http://yfb-lccadmin.jdl.com/home?key=1725334217718" target="_blank">LCC</a>
-        </div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">CRM</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=jdl-crm-quotation&platform=jdos" target="_blank">jdl-crm-quotation</a></div>
-          <div class="link-item"><span class="desc">LCC</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=wl-contract-service&platform=jdos" target="_blank">wl-contract-service</a></div>
-        </div>
-      </div>
+    <!-- CRM/LCC -->
+    <div class="cat-card c-pink" onclick="openDetail('CRM / LCC','#ec4899','#fdf2f8','&#128101;',7)">
+      <div class="dot">&#128101;</div>
+      <div class="name">CRM / LCC</div>
+      <div class="quick">CRM · LCC</div>
     </div>
 
     <!-- 平台 -->
-    <div class="cat-card c-gray" onmouseenter="expandCard(this)" id="card-8">
-      <div class="face">
-        <div class="dot">&#9881;</div>
-        <div class="name">平台</div>
-        <div class="quick">运单 · 预分拣 · 拦截</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#4b5563">平台</div>
-        <div class="quick-links">
-          <a href="http://scrm.jdl.com/crm-ui/customer/list" target="_blank">CRM</a>
-          <a href="http://yfb-lccadmin.jdl.com/home?key=1725334217718" target="_blank">LCC</a>
-        </div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">运单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=waybill-center&platform=jdos" target="_blank">waybill-center</a></div>
-          <div class="link-item"><span class="desc">预分拣</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=preseparate-jsf&platform=jdos" target="_blank">preseparate-jsf</a></div>
-          <div class="link-item"><span class="desc">拦截系统</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=etms-blocker-worker&platform=jdos" target="_blank">etms-blocker-worker</a></div>
-          <div class="link-item"><span class="desc">外单三合一接单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=lbcc-delivery-provider&platform=jdos" target="_blank">lbcc-delivery-provider</a></div>
-          <div class="link-item"><span class="desc">外单京配转三方</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=lbcc-delivery-worker&platform=jdos" target="_blank">lbcc-delivery-worker</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-gray" onclick="openDetail('平台','#6b7280','#f3f4f6','&#9881;',8)">
+      <div class="dot">&#9881;</div>
+      <div class="name">平台</div>
+      <div class="quick">运单 · 预分拣 · 拦截</div>
     </div>
 
     <!-- 物流开放平台 -->
-    <div class="cat-card c-slate" onmouseenter="expandCard(this)" id="card-9">
-      <div class="face">
-        <div class="dot">&#128640;</div>
-        <div class="name">物流开放平台</div>
-        <div class="quick">运单 · 轨迹服务</div>
-      </div>
-      <div class="body">
-        <div class="body-title" style="color:#475569">物流开放平台</div>
-        <div class="link-grid">
-          <div class="link-item"><span class="desc">运单</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=waybill-center&platform=jdos" target="_blank">waybill-center</a></div>
-          <div class="link-item"><span class="desc">标准轨迹服务——订阅</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tracking-facade&platform=jdos" target="_blank">tracking-facade</a></div>
-          <div class="link-item"><span class="desc">标准轨迹服务——推送</span><a class="app" href="http://taishan.jd.com/logbook/query/history?appName=tracing-router&platform=jdos" target="_blank">tracing-router</a></div>
-        </div>
-      </div>
+    <div class="cat-card c-slate" onclick="openDetail('物流开放平台','#64748b','#f1f5f9','&#128640;',9)">
+      <div class="dot">&#128640;</div>
+      <div class="name">物流开放平台</div>
+      <div class="quick">运单 · 轨迹服务</div>
     </div>
 
+  </div>
+
+  <!-- 遮罩 + 详情面板 -->
+  <div class="overlay" id="overlay" onclick="closeDetail()"></div>
+  <div class="detail-panel" id="panel">
+    <button class="dp-close" onclick="closeDetail()">&#10005;</button>
+    <div class="dp-title" id="dp-title"></div>
+    <div class="quick-links" id="dp-quick"></div>
+    <div class="link-grid" id="dp-links"></div>
   </div>
 </div>
 
 <script>
-var grid = document.getElementById('grid');
+var overlay = document.getElementById('overlay');
+var panel = document.getElementById('panel');
 
-function expandCard(card) {
-  grid.classList.add('expanded');
-  var cards = grid.querySelectorAll('.cat-card');
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].classList.remove('active');
-  }
-  card.classList.add('active');
+var data = [
+  {
+    name: '仓配', quick: [
+      { t: '履约OMG', u: 'http://omg.jdl.com' },
+      { t: '神行', u: 'http://batrix.jdl.com/order/unusualReport' },
+      { t: '仓海管理端', u: 'http://eclpadmin.jdl.com/#/index/content.do' },
+      { t: '仓海运维端', u: 'http://eclpmtn.jdl.com/#' },
+    ],
+    links: [
+      ['接入', 'eclp-isv'],
+      ['SOP单据', 'eclp-sop'],
+      ['非百川订单', 'eclp-so'],
+      ['百川订单', 'jdl-oms-outbound'],
+      ['青龙适配', 'eclp-bd'],
+      ['百川仓配履约', 'ofw-outbound'],
+      ['产业平台', 'csc-channel'],
+      ['产业平台', 'clps-ucs'],
+      ['承运商分单', 'eclp-os-service'],
+    ]
+  },
+  {
+    name: '快快纯配', quick: [
+      { t: 'CT代码链路', u: 'http://ct.jdl.com' },
+      { t: 'BC纯配接单', u: 'http://web.ka.jdl.com' },
+      { t: '神行', u: 'http://batrix.jdl.com/order/unusualReport' },
+    ],
+    links: [
+      ['商家工作台快递', 'eclp-business-nirvana'],
+      ['快运渠道接单', 'kys-platform'],
+      ['快快接入：jos、物流开放平台', 'jdl-eca-adapter'],
+      ['快递小程序', 'express-na'],
+      ['快递小程序', 'express-na-product'],
+      ['快快接入：标准能力', 'jdl-eca-standard-ability'],
+      ['纯配订单中心', 'jdl-oms-express'],
+      ['快快OFC', 'cp-eofc-application'],
+      ['快快OFC-worker', 'cp-eofc-worker'],
+      ['产品中心', 'jdl-pms-service'],
+      ['路由校验', 'vrs-platform-outer'],
+      ['路由系统', 'route-link-service'],
+      ['是否支持京配', 'dmsrec-ql-jd-com'],
+      ['运费、询价相关', 'lbs-product-inquiry'],
+      ['终端揽收、转网、询价', 'tos-collect-server'],
+      ['终端派送', 'tos-delivery-provider'],
+    ]
+  },
+  {
+    name: '冷链', quick: [],
+    links: [
+      ['冷链接入', 'cc-cap-adapter'],
+      ['冷链小程序', 'coldchain-jdexpress'],
+      ['冷链接入：标准能力', 'cc-cap-standard-ability'],
+      ['订单中心', 'jdl-oms-express'],
+      ['OFC', 'cp-eofc-application'],
+      ['产品中心', 'jdl-pms-service'],
+      ['路由校验', 'vrs-platform-outer'],
+      ['是否支持京配', 'dmsrec-ql-jd-com'],
+      ['运费、询价相关', 'lbs-product-inquiry'],
+    ]
+  },
+  {
+    name: '大件纯配', quick: [
+      { t: '大件运单中心', u: 'http://olp.jdl.com/' },
+    ],
+    links: [
+      ['大件接入', 'eclp-isv'],
+      ['百川分流CO', 'eclp-co'],
+      ['百川适配', 'request-router'],
+      ['订单中心', 'jdl-oms-express'],
+      ['大件OFC适配', 'las-waybill-adapter'],
+      ['大件拒单服务', 'las-wb-adapter-service'],
+      ['大件中间件', 'lbmw-orderinfo'],
+      ['大件外单', 'las-olp-receiving'],
+    ]
+  },
+  {
+    name: 'TC', quick: [
+      { t: '转运系统', u: 'http://trans.jdl.com/' },
+    ],
+    links: [
+      ['商家工作台等下单', 'seller-workbench-center'],
+      ['接入层处理', 'seller-workbench-worker'],
+      ['TC订单中心', 'jdl-oms-doo'],
+      ['TCOFC', 'trans-ofc'],
+      ['运单中心', 'cp-wbms'],
+      ['外单接单', 'lbcc-delivery-provider'],
+      ['转运系统', 'trans-tc'],
+      ['转运系统资料', 'trans-basic'],
+    ]
+  },
+  {
+    name: '无界', quick: [
+      { t: '阿尔法系统', u: 'http://ldopwaybill.jdl.com/' },
+    ],
+    links: [
+      ['无界下单相关', 'ldop-alpha-waybill-provider'],
+      ['无界接单后处理，调gis匹配', 'ldop-alpha-waybill-worker'],
+    ]
+  },
+  {
+    name: 'B2B运输', quick: [
+      { t: '分单控制台', u: 'http://dispatch.jdl.com' },
+      { t: '运输调度', u: 'http://wb.b2b.jdl.com/' },
+      { t: '合同物流配置', u: 'http://b2b-basic.jdl.com/b2bContractAddress' },
+      { t: '供应链管理', u: 'http://scm.jdl.com/' },
+    ],
+    links: [
+      ['接单', 'tms-orc-web'],
+      ['调度', 'tms-jdi-web'],
+      ['工作台', 'tms-workbench-web'],
+      ['计费', 'tms-bms-web'],
+      ['合同物流始发地', 'scm-b2b-basic-web'],
+    ]
+  },
+  {
+    name: 'CRM / LCC', quick: [
+      { t: 'CRM', u: 'http://scrm.jdl.com/crm-ui/customer/list' },
+      { t: 'LCC', u: 'http://yfb-lccadmin.jdl.com/home?key=1725334217718' },
+    ],
+    links: [
+      ['CRM', 'jdl-crm-quotation'],
+      ['LCC', 'wl-contract-service'],
+    ]
+  },
+  {
+    name: '平台', quick: [
+      { t: 'CRM', u: 'http://scrm.jdl.com/crm-ui/customer/list' },
+      { t: 'LCC', u: 'http://yfb-lccadmin.jdl.com/home?key=1725334217718' },
+    ],
+    links: [
+      ['运单', 'waybill-center'],
+      ['预分拣', 'preseparate-jsf'],
+      ['拦截系统', 'etms-blocker-worker'],
+      ['外单三合一接单', 'lbcc-delivery-provider'],
+      ['外单京配转三方', 'lbcc-delivery-worker'],
+    ]
+  },
+  {
+    name: '物流开放平台', quick: [],
+    links: [
+      ['运单', 'waybill-center'],
+      ['标准轨迹服务——订阅', 'tracking-facade'],
+      ['标准轨迹服务——推送', 'tracing-router'],
+    ]
+  },
+];
+
+function openDetail(name, color, bg, emoji, idx) {
+  var d = data[idx];
+
+  document.getElementById('dp-title').innerHTML = '<span class="dp-dot" style="background:' + bg + ';color:' + color + '">' + emoji + '</span>' + d.name;
+
+  var quickHTML = d.quick.map(function(q) {
+    return '<a href="' + q.u + '" target="_blank">' + q.t + '</a>';
+  }).join('');
+  document.getElementById('dp-quick').innerHTML = quickHTML;
+
+  var linksHTML = d.links.map(function(l) {
+    var appUrl = 'http://taishan.jd.com/logbook/query/history?appName=' + l[1] + '&platform=jdos';
+    return '<div class="link-item"><span class="desc">' + l[0] + '</span><a class="app" href="' + appUrl + '" target="_blank">' + l[1] + '</a></div>';
+  }).join('');
+  document.getElementById('dp-links').innerHTML = linksHTML;
+
+  overlay.classList.add('show');
+  panel.classList.add('show');
 }
 
-function collapseAll() {
-  grid.classList.remove('expanded');
-  var cards = grid.querySelectorAll('.cat-card');
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].classList.remove('active');
-  }
+function closeDetail() {
+  overlay.classList.remove('show');
+  panel.classList.remove('show');
 }
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDetail(); });
 </script>
 </body>
 </html>
