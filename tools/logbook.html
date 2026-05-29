@@ -58,6 +58,7 @@ body {
 .c-pink   .dot { background: #fdf2f8; color: #ec4899; }
 .c-gray   .dot { background: #f3f4f6; color: #6b7280; }
 .c-slate  .dot { background: #f1f5f9; color: #64748b; }
+.c-indigo .dot { background: #eef2ff; color: #6366f1; }
 
 /* 遮罩 */
 .overlay {
@@ -222,29 +223,36 @@ body {
       <div class="quick">阿尔法系统 · 下单 · 接单处理</div>
     </div>
 
+    <!-- 终端 -->
+    <div class="cat-card c-indigo" onclick="openDetail('终端','#6366f1','#eef2ff','&#127968;',6)">
+      <div class="dot">&#127968;</div>
+      <div class="name">终端</div>
+      <div class="quick">揽收 · 派送</div>
+    </div>
+
     <!-- B2B运输 -->
-    <div class="cat-card c-teal" onclick="openDetail('B2B运输','#14b8a6','#f0fdfa','&#128739;',6)">
+    <div class="cat-card c-teal" onclick="openDetail('B2B运输','#14b8a6','#f0fdfa','&#128739;',7)">
       <div class="dot">&#128739;</div>
       <div class="name">B2B运输</div>
       <div class="quick">分单 · 调度 · 合同物流</div>
     </div>
 
     <!-- CRM/LCC -->
-    <div class="cat-card c-pink" onclick="openDetail('CRM / LCC','#ec4899','#fdf2f8','&#128101;',7)">
+    <div class="cat-card c-pink" onclick="openDetail('CRM / LCC','#ec4899','#fdf2f8','&#128101;',8)">
       <div class="dot">&#128101;</div>
       <div class="name">CRM / LCC</div>
       <div class="quick">CRM · LCC</div>
     </div>
 
     <!-- 平台 -->
-    <div class="cat-card c-gray" onclick="openDetail('平台','#6b7280','#f3f4f6','&#9881;',8)">
+    <div class="cat-card c-gray" onclick="openDetail('平台','#6b7280','#f3f4f6','&#9881;',9)">
       <div class="dot">&#9881;</div>
       <div class="name">平台</div>
       <div class="quick">运单 · 预分拣 · 拦截</div>
     </div>
 
     <!-- 物流开放平台 -->
-    <div class="cat-card c-slate" onclick="openDetail('物流开放平台','#64748b','#f1f5f9','&#128640;',9)">
+    <div class="cat-card c-slate" onclick="openDetail('物流开放平台','#64748b','#f1f5f9','&#128640;',10)">
       <div class="dot">&#128640;</div>
       <div class="name">物流开放平台</div>
       <div class="quick">运单 · 轨迹服务</div>
@@ -315,8 +323,6 @@ var data = [
       ['路由系统', 'route-link-service'],
       ['是否支持京配', 'dmsrec-ql-jd-com'],
       ['运费、询价相关', 'lbs-product-inquiry'],
-      ['终端揽收、转网、询价', 'tos-collect-server'],
-      ['终端派送', 'tos-delivery-provider'],
     ]
   },
   {
@@ -370,6 +376,13 @@ var data = [
     links: [
       ['无界下单相关', 'ldop-alpha-waybill-provider'],
       ['无界接单后处理，调gis匹配', 'ldop-alpha-waybill-worker'],
+    ]
+  },
+  {
+    name: '终端', quick: [],
+    links: [
+      ['终端揽收、转网、询价', 'tos-collect-server'],
+      ['终端派送', 'tos-delivery-provider'],
     ]
   },
   {
