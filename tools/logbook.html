@@ -112,8 +112,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 
     <div class="cat-card c-teal" onclick="openDetail(5)">
       <div class="dot">&#128176;</div>
-      <div class="name">计费询价</div>
-      <div class="quick">运费、询价相关</div>
+      <div class="name">计费询价台账</div>
+      <div class="quick">运费、询价、pos台账</div>
     </div>
 
     <div class="cat-card c-gray" onclick="openDetail(6)">
@@ -189,6 +189,13 @@ var data = [
       ['百川订单', 'jdl-oms-outbound'], ['青龙适配', 'eclp-bd'],
       ['百川仓配履约', 'ofw-outbound'], ['产业平台', 'csc-channel'],
       ['产业平台', 'clps-ucs'], ['承运商分单', 'eclp-os-service'],
+      ['货主变更单、在库查询、调整单', 'eclp-bao'],
+      ['调拨单', 'open-ib'],
+      ['商家工作台导出任务', 'eclp-report'],
+      ['库存回传扣减', 'eclp-stock-biz'],
+      ['盘点单', 'open-inside'],
+      ['自定义导单', 'eclp-import-service'],
+      ['下发通天晓信息', 'eclp-integratio'],
     ]
   },
   {
@@ -206,6 +213,7 @@ var data = [
       ['快快OFC-worker', 'cp-eofc-worker'], ['产品中心', 'jdl-pms-service'],
       ['路由校验', 'vrs-platform-outer'], ['路由系统', 'route-link-service'],
       ['是否支持京配', 'dmsrec-ql-jd-com'],
+      ['商家工作台快递打印', 'jdl-ebw-track'],
     ]
   },
   {
@@ -216,6 +224,9 @@ var data = [
       ['百川适配', 'request-router'], ['订单中心', 'jdl-oms-express'],
       ['大件OFC适配', 'las-waybill-adapter'], ['大件拒单服务', 'las-wb-adapter-service'],
       ['大件中间件', 'lbmw-orderinfo'], ['大件外单', 'las-olp-receiving'],
+      ['大件备件库业务、备件库退供', 'open-ss'],
+      ['商家工作台大件下单日志', 'las-seller-bsc-rpc'],
+      ['大件调度预约的日志', 'intellis-appointment'],
     ]
   },
   {
@@ -235,13 +246,16 @@ var data = [
       ['终端揽收、转网、询价', 'tos-collect-server'],
       ['终端派送', 'tos-delivery-provider'],
       ['终端外呼限制查询', 'tos-resource-provider'],
+      ['链上签签署明细查询', 'sc-center'],
+      ['查询商家排班', 'ql-express-collect-job'],
     ]
   },
   {
-    name: '计费询价', color: '#14b8a6', bg: '#f0fdfa', emoji: '&#128176;',
+    name: '计费询价台账', color: '#14b8a6', bg: '#f0fdfa', emoji: '&#128176;',
     quick: [],
     links: [
       ['运费、询价相关', 'lbs-product-inquiry'],
+      ['写入pos台账', 'poslink-ds'],
     ]
   },
   {
@@ -254,6 +268,7 @@ var data = [
       ['运单', 'waybill-center'], ['预分拣', 'preseparate-jsf'],
       ['拦截系统', 'etms-blocker-worker'], ['外单三合一接单', 'lbcc-delivery-provider'],
       ['外单京配转三方', 'lbcc-delivery-worker'],
+      ['拉取物流轨迹', 'etms-jobnotraceworker'],
     ]
   },
   {
